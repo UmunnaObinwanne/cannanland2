@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
-import { FaPrayingHands, FaBible, FaCommentAlt, FaBars, FaChartLine } from "react-icons/fa";
+import { FaPrayingHands, FaBible, FaCommentAlt, FaBars, FaChartLine, FaQuestion } from "react-icons/fa";
 import { useState, useCallback, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
 import Image from "next/image";
@@ -213,6 +213,9 @@ export function HeaderClient({ user }: HeaderClientProps) {
               </NavLink>
               <NavLink href="/share-testimony" icon={FaCommentAlt}>
                 Testimonies
+              </NavLink>
+              <NavLink href="/share-spiritual-question" icon={FaQuestion}>
+                Spiritual Questions
               </NavLink>
             </div>
           </div>

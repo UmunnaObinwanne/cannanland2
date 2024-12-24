@@ -40,7 +40,8 @@ export async function middleware(request: NextRequest) {
   if (
     request.nextUrl.pathname.startsWith('/share-prayer-request') ||
     request.nextUrl.pathname.startsWith('/share-bible-study') ||
-    request.nextUrl.pathname.startsWith('/share-testimony')
+    request.nextUrl.pathname.startsWith('/share-testimony') ||
+    request.nextUrl.pathname.startsWith('/share-spiritual-question')
   ) {
     if (!session) {
       // Store the original URL they were trying to visit
@@ -75,6 +76,7 @@ export const config = {
     '/admin/:path*',
     '/share-prayer-request',
     '/share-bible-study',
-    '/share-testimony'
+    '/share-testimony',
+    '/share-spiritual-question'
   ],
 } 

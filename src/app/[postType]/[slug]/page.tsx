@@ -35,42 +35,55 @@ interface Post {
   is_anonymous: boolean;
   profiles: Profile;
   responses?: Response[];
+  slug: string;
 }
 
-// Get the response table name correctly
-const getResponseTable = (table: string | undefined): string => {
-  switch (table) {
-    case 'bible_studies':
-      return 'biblestudy_responses';
-    case 'prayer_requests':
-      return 'prayer_responses';
-    case 'testimonies':
-      return 'testimony_responses';
-    default:
-      return '';
+interface TableConfig {
+  table: string;
+  type: string;
+  responseTable: string;
+}
+
+// Define the table mapping as a regular object
+const TABLE_MAP: Record<string, TableConfig> = {
+  'bible-study': {
+    table: 'bible_studies',
+    type: 'bible_study',
+    responseTable: 'biblestudy_responses'
+  },
+  'prayer-request': {
+    table: 'prayer_requests',
+    type: 'prayer_request',
+    responseTable: 'prayer_responses'
+  },
+  'testimony': {
+    table: 'testimonies',
+    type: 'testimony',
+    responseTable: 'testimony_responses'
+  }, 
+  'spiritual-question': {
+    table: 'spiritual_questions',
+    type: 'spiritual_question',
+    responseTable: 'spiritual_question_responses'
   }
 };
 
 export default async function PostDetailPage({
   params,
 }: {
-  params: { postType: string; postId: string };
+  params: { postType: string; slug: string };
 }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser() as { data: { user: User | null } };
 
   console.log('URL Params:', params);
 
-  // Get the correct table name and base post type
-  const tableMap = {
-    'bible-studys': { table: 'bible_studies', type: 'bible_study' },
-    'prayer-requests': { table: 'prayer_requests', type: 'prayer_request' },
-    'testimonys': { table: 'testimonies', type: 'testimony' }
-  }[params.postType];
+  // Get the table configuration
+  const tableConfig = TABLE_MAP[params.postType];
 
-  console.log('TableMap:', tableMap);
+  console.log('TableConfig:', tableConfig);
 
-  if (!tableMap) {
+  if (!tableConfig) {
     return (
       <div className="container mx-auto max-w-4xl px-4 py-8">
         <div className="rounded-lg bg-red-50 p-6">
@@ -81,14 +94,13 @@ export default async function PostDetailPage({
     );
   }
 
-  const { table, type } = tableMap;
-  const responseTable = getResponseTable(table);
+  const { table, type, responseTable } = tableConfig;
 
   // Log the query details
   console.log('Query details:', {
     table,
     type,
-    postId: params.postId,
+    slug: params.slug,
     query: `
       *,
       profiles!${table}_profile_id_fkey(username, avatar_url),
@@ -114,19 +126,23 @@ export default async function PostDetailPage({
         profiles(username, avatar_url)
       )
     `)
-    .eq('id', params.postId)
+    .eq('slug', params.slug)
     .single();
 
   console.log('Query result:', { post, error });
 
   if (error || !post) {
-    console.error('Error or no post:', { error, post });
-    return <div>Post not found</div>;
+    return (
+      <div className="container mx-auto max-w-4xl px-4 py-8">
+        <div className="rounded-lg bg-red-50 p-6">
+          <h2 className="text-xl font-bold text-red-800">Post not found</h2>
+          <p className="mt-2 text-red-600">The requested post could not be found.</p>
+        </div>
+      </div>
+    );
   }
 
   const typedPost = post as unknown as Post;
-  console.log(typedPost)
-  console.log('this is post', post)
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-8">
@@ -188,7 +204,7 @@ export default async function PostDetailPage({
 
       {/* Reply Section */}
       {user ? (
-        <ReplyForm postId={params.postId} postType={params.postType} />
+        <ReplyForm postId={typedPost.slug} postType={params.postType} />
       ) : (
         <div className="mt-8 rounded-lg bg-gray-50 p-6 text-center">
           <p className="text-gray-600">
@@ -234,4 +250,4 @@ export default async function PostDetailPage({
       </div>
     </div>
   );
-} 
+}

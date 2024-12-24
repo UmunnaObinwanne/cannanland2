@@ -37,7 +37,7 @@ export default async function BibleStudiesPage() {
 
               <div className="relative border-l-4 border-purple-500 bg-purple-50/70 px-6 py-4">
                 <Link 
-                  href={`/bible-study/${post.id}`}
+                  href={`/bible-study/${post.slug}`}
                   className="block space-y-1"
                 >
                   <h3 className="text-xl font-bold text-gray-900 transition-colors group-hover:text-purple-600">

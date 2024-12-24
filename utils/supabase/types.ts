@@ -275,6 +275,97 @@ export type Database = {
           },
         ]
       }
+      spiritual_questions: {
+        Row: {
+          id: string
+          title: string
+          content: string
+          created_at: string
+          profile_id: string
+          user_id: string
+          is_anonymous: boolean | null
+          likes_count: number | null
+          user_likes: string[] | null
+          moderation_status: 'pending' | 'approved' | 'rejected'
+        }
+        Insert: {
+          title: string
+          content: string
+          created_at?: string
+          profile_id: string
+          user_id: string
+          is_anonymous?: boolean | null
+          likes_count?: number | null
+          user_likes?: string[] | null
+          moderation_status?: 'pending' | 'approved' | 'rejected'
+        }
+        Update: {
+          title?: string
+          content?: string
+          created_at?: string
+          profile_id?: string
+          user_id?: string
+          is_anonymous?: boolean | null
+          likes_count?: number | null
+          user_likes?: string[] | null
+          moderation_status?: 'pending' | 'approved' | 'rejected'
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spiritual_questions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      spiritual_question_responses: {
+        Row: {
+          id: string
+          content: string
+          created_at: string
+          question_id: string
+          profile_id: string
+          user_id: string
+          updated_at: string
+          moderation_status: 'pending' | 'approved' | 'rejected'
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          question_id: string
+          profile_id: string
+          user_id: string
+          updated_at?: string
+          moderation_status?: 'pending' | 'approved' | 'rejected'
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          question_id?: string
+          profile_id?: string
+          user_id?: string
+          updated_at?: string
+          moderation_status?: 'pending' | 'approved' | 'rejected'
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spiritual_question_responses_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "spiritual_question_responses_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "spiritual_questions"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never

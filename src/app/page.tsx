@@ -5,34 +5,54 @@ import { LikeButton } from "@/components/like-button";
 import DOMPurify from 'isomorphic-dompurify';
 import { FaPrayingHands, FaBible, FaHeart, FaComments } from 'react-icons/fa';
 import { PrayerWidget } from "@/components/prayer-widget";
+import { BibleStudyWidget } from "@/components/bible-study-widget";
+import { formatPostType, slugifyPostType } from '@/utils/post-types';
 
 export default async function Home() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Fetch all types of posts
-  const [bibleStudies, prayerRequests, testimonies] = await Promise.all([
+  // Fetch all types of posts with correct profile relationships
+  const [bibleStudies, prayerRequests, testimonies, spiritualQuestions] = await Promise.all([
     supabase
       .from('bible_studies')
-      .select('*, profiles(username)')
-      .order('created_at', { ascending: false })
-      .limit(5),
+      .select(`
+        *,
+        profiles!bible_studies_profile_id_fkey(username)
+      `)
+      .eq('moderation_status', 'approved')
+      .order('created_at', { ascending: false }),
     supabase
       .from('prayer_requests')
-      .select('*, profiles(username)')
-      .order('created_at', { ascending: false })
-      .limit(5),
+      .select(`
+        *,
+        profiles!prayer_requests_profile_id_fkey(username)
+      `)
+      .eq('moderation_status', 'approved')
+      .order('created_at', { ascending: false }),
     supabase
       .from('testimonies')
-      .select('*, profiles(username)')
+      .select(`
+        *,
+        profiles!testimonies_profile_id_fkey(username)
+      `)
+      .eq('moderation_status', 'approved')
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('spiritual_questions')
+      .select(`
+        *,
+        profiles!spiritual_questions_profile_id_fkey(username)
+      `)
+      .eq('moderation_status', 'approved')
       .order('created_at', { ascending: false })
-      .limit(5)
   ]);
 
   const allPosts = [
     ...(bibleStudies.data || []).map(post => ({ ...post, type: 'bible_study' })),
     ...(prayerRequests.data || []).map(post => ({ ...post, type: 'prayer_request' })),
-    ...(testimonies.data || []).map(post => ({ ...post, type: 'testimony' }))
+    ...(testimonies.data || []).map(post => ({ ...post, type: 'testimony' })),
+    ...(spiritualQuestions.data || []).map(post => ({ ...post, type: 'spiritual_question' }))
   ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   return (
@@ -65,8 +85,11 @@ export default async function Home() {
 
       {/* Content Section */}
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-        <div className="container mx-auto max-w-4xl px-2 sm:px-4 py-4 sm:py-8">
+        <div className="container mx-auto max-w-6xl px-2 sm:px-4 py-4 sm:py-8">
           <div className="flex gap-8">
+            {/* Left Widget */}
+            <BibleStudyWidget />
+
             {/* Main content */}
             <div className="flex-1">
               <div className="space-y-8">
@@ -88,7 +111,7 @@ export default async function Home() {
                       }`}
                     >
                       <Link 
-                        href={`/${post.type.replace('_', '-')}s/${post.id}`}
+                        href={`/${slugifyPostType(post.type)}/${post.slug}`}
                         className="block space-y-1"
                       >
                         <h3 className="text-xl font-bold text-gray-900 transition-colors group-hover:text-blue-600">
@@ -143,7 +166,7 @@ export default async function Home() {
 
                         {user ? (
                           <Link
-                            href={`/${post.type.replace('_', '-')}s/${post.id}`}
+                            href={`/${slugifyPostType(post.type)}/${post.id}`}
                             className="flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-gray-600 transition-all hover:bg-gray-50"
                           >
                             <FaComments className="text-sm text-gray-400" />
@@ -164,7 +187,7 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* Side widget */}
+            {/* Right Widget */}
             <PrayerWidget />
           </div>
         </div>

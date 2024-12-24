@@ -37,7 +37,7 @@ export default async function TestimoniesPage() {
 
               <div className="relative border-l-4 border-green-500 bg-green-50/70 px-6 py-4">
                 <Link 
-                  href={`/testimony/${post.id}`}
+                  href={`/testimony/${post.slug}`}
                   className="block space-y-1"
                 >
                   <h3 className="text-xl font-bold text-gray-900 transition-colors group-hover:text-green-600">
@@ -81,7 +81,7 @@ export default async function TestimoniesPage() {
 
                   {user ? (
                     <Link
-                      href={`/testimony/${post.id}`}
+                      href={`/testimony/${post.slug}`}
                       className="flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50"
                     >
                       <FaComments className="text-sm text-gray-400" />

@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 import { FaTrash } from 'react-icons/fa';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { useToast } from '@/components/toast';
+import Link from 'next/link';
+import { formatPostType, slugifyPostType } from '@/utils/post-types';
 
 type Post = {
   id: string;
@@ -20,6 +22,7 @@ type Post = {
     username: string;
     email: string;
   };
+  slug: string;
 };
 
 export default function AdminDashboard() {
@@ -64,7 +67,7 @@ export default function AdminDashboard() {
 
     console.log('Fetching posts with status:', filter);
 
-    const [bibleStudies, prayerRequests, testimonies] = await Promise.all([
+    const [bibleStudies, prayerRequests, testimonies, spiritualQuestions] = await Promise.all([
       supabase
         .from('bible_studies')
         .select('*, profiles(username, email)')
@@ -82,15 +85,20 @@ export default function AdminDashboard() {
         .from('testimonies')
         .select('*, profiles(username, email)')
         .eq('moderation_status', filter)
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: false }), 
+      supabase
+        .from('spiritual_questions')
+        .select('*, profiles(username, email)')
+        .eq('moderation_status', filter)
+        .order('created_at', { ascending: false }),
     ]);
 
-    console.log('Prayer Requests:', prayerRequests);
 
     const allPosts = [
       ...(bibleStudies.data || []).map(post => ({ ...post, type: 'bible_study' })),
       ...(prayerRequests.data || []).map(post => ({ ...post, type: 'prayer_request' })),
-      ...(testimonies.data || []).map(post => ({ ...post, type: 'testimony' }))
+      ...(testimonies.data || []).map(post => ({ ...post, type: 'testimony' })), 
+      ...(spiritualQuestions.data || []).map(post => ({ ...post, type: 'spiritual_question' }))
     ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     setPosts(allPosts);
@@ -110,6 +118,9 @@ export default function AdminDashboard() {
         break;
       case 'testimony':
         table = 'testimonies';
+        break;
+          case 'spiritual_question':
+        table = 'spiritual_questions';
         break;
       default:
         return;
@@ -157,6 +168,9 @@ export default function AdminDashboard() {
         break;
       case 'testimony':
         table = 'testimonies';
+        break;
+        case 'spiritual_question':
+        table = 'spiritual_questions';
         break;
       default:
         return;
@@ -206,7 +220,14 @@ export default function AdminDashboard() {
             <div key={post.id} className="rounded-lg bg-white p-6 shadow-md">
               <div className="mb-4 flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold">{post.title}</h2>
+                  <h2 className="text-xl font-bold">
+                    <Link
+                      href={`/${slugifyPostType(post.type)}/${post.slug}`}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      {post.title}
+                    </Link>
+                  </h2>
                   <p className="text-sm text-gray-500">
                     by {post.profiles.username} • {formatDistanceToNow(new Date(post.created_at))} ago
                   </p>
