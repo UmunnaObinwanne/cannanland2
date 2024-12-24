@@ -1,4 +1,5 @@
-import { FormMessage, Message } from "@/components/form-message";
+'use client';
+
 import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -6,11 +7,12 @@ import Image from "next/image";
 import { signUpAction } from "./../../actions";
 import { createClient } from "../../../../utils/supabase/server";
 import { redirect } from "next/navigation";
+import { toast } from 'sonner';
 
 export default async function Signup({
   searchParams,
 }: {
-  searchParams: Promise<Message>;
+  searchParams: { error?: string };
 }) {
   const supabase = await createClient();
 
@@ -21,11 +23,40 @@ export default async function Signup({
 
   // Redirect if user is logged in
   if (user) {
-    redirect("/"); // Redirect to the homepage or any other page you prefer
+    redirect("/sign-in"); // Redirect to the homepage or any other page you prefer
   }
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-  const resolvedParams = await searchParams;
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+
+      toast.success('Check your email to confirm your account');
+      redirect('/sign-in');
+    } catch (error) {
+      toast.error('An error occurred while signing up');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex items-center justify-center bg-gray-50 mt-20 py-10">
@@ -73,7 +104,7 @@ export default async function Signup({
             </div>
 
             {/* Conditional FormMessage */}
-            {resolvedParams && <FormMessage message={resolvedParams} />}
+           {searchParams && <p className="text-red-900">{searchParams.error}</p>}
 
             {/* Form */}
             <form className="space-y-6" action={signUpAction}>

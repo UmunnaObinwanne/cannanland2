@@ -21,7 +21,7 @@ const config = {
     },
     extend: {
       fontFamily: {
-        sans: ['var(--font-sans)', 'var(--font-nunito-sans)'],
+        sans: ['system-ui', 'sans-serif'],
         heading: ['var(--font-heading)'],
       },
       colors: {

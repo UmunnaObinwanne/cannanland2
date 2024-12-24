@@ -39,9 +39,11 @@ export const signUpAction = async (formData: FormData) => {
   }
 };
 
-export const signInAction = async (formData: FormData) => {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
+export async function signInAction(formData: FormData) {
+  'use server';
+
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
   const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithPassword({
@@ -50,11 +52,15 @@ export const signInAction = async (formData: FormData) => {
   });
 
   if (error) {
-    return encodedRedirect("error", "/sign-in", error.message);
+    return encodedRedirect(
+      "error",
+      "/sign-in",
+      "Invalid email or password. Please try again."
+    );
   }
 
-  return redirect("/");
-};
+  redirect('/');
+}
 
 export const forgotPasswordAction = async (formData: FormData) => {
   'use server';
@@ -89,21 +95,22 @@ export async function resetPasswordAction(formData: FormData) {
     };
   }
 
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.updateUser({
+      password: password,
+    });
 
-  const { error } = await supabase.auth.updateUser({
-    password: password,
-  });
+    if (error) throw error;
 
-  if (error) {
+    // Redirect to sign-in page after successful password reset
+    redirect('/sign-in?message=Password updated successfully. Please sign in with your new password.');
+
+  } catch (error) {
     return {
       error: 'Failed to update password. Please try again.',
     };
   }
-
-  return {
-    success: 'Password updated successfully. You can now sign in.',
-  };
 }
 
 export const signOutAction = async () => {

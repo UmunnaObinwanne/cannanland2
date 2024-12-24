@@ -1,57 +1,95 @@
-// HeaderClient.tsx (Client Component)
 "use client";
 
+import { memo } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
-import { FaPrayingHands, FaBible, FaCommentAlt, FaBars } from "react-icons/fa";
-import { useState, useEffect, use } from "react";
+import { FaPrayingHands, FaBible, FaCommentAlt, FaBars, FaChartLine } from "react-icons/fa";
+import { useState, useCallback, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
-import { getUserProfile, signOutAction } from "@/app/actions";
 import Image from "next/image";
 import { createClient } from "../../utils/supabase/client";
 import { Profile } from "../../utils/supabase/types";
-import { redirect } from "next/navigation";
+import { useRouter } from 'next/navigation';
+import { LoadingModal } from "@/components/loading-modal";
+import { toast } from 'sonner';
 
 interface HeaderClientProps {
   user: User | null;
 }
 
+// Separate navigation link components for better performance
+const NavLink = memo(({ href, icon: Icon, children }: { 
+  href: string; 
+  icon: typeof FaPrayingHands; 
+  children: React.ReactNode; 
+}) => (
+  <Link
+    href={href}
+    className="flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-gray-900"
+  >
+    <Icon className="text-blue-500 text-sm sm:text-base" />
+    {children}
+  </Link>
+));
+
+NavLink.displayName = 'NavLink';
+
 export function HeaderClient({ user }: HeaderClientProps) {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const supabase = createClient();
+    
     async function loadProfile() {
-      if (user) {
-        try {
-          const supabase = createClient();
-          const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single();
-          
-          if (error) {
-            console.error('Error loading profile:', error);
-            return;
-          }
-          
-          if (data) {
-            setProfile(data);
-          }
-        } catch (error) {
-          console.error('Error:', error);
-        }
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*, is_admin')
+          .eq('id', user.id)
+          .single();
+        
+        if (error) throw error;
+        setProfile(data);
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      } finally {
+        setIsLoading(false);
       }
     }
     
     loadProfile();
   }, [user]);
-  
 
-  const renderAuthSection = () => {
+  const handleSignOut = useCallback(async () => {
+    try {
+      setIsSigningOut(true);
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      toast.success('Signed out successfully');
+      router.refresh();
+    } catch (error) {
+      toast.error('Error signing out');
+    } finally {
+      setIsSigningOut(false);
+    }
+  }, [router]);
+
+  const toggleMenu = useCallback(() => {
+    setIsMenuOpen(prev => !prev);
+  }, []);
+
+  const renderAuthSection = useCallback(() => {
     if (user) {
       return (
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -76,11 +114,17 @@ export function HeaderClient({ user }: HeaderClientProps) {
             </svg>
             <span>View Profile</span>
           </Link>
-          <form action={signOutAction} className="w-full sm:w-auto">
-            <Button type="submit" variant="outline" size="sm" className="w-full sm:w-auto">
-              Sign out
-            </Button>
-          </form>
+          <button
+            onClick={handleSignOut}
+            disabled={isSigningOut}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition-all
+              ${isSigningOut 
+                ? 'cursor-not-allowed bg-gray-400 text-white'
+                : 'bg-white text-gray-600 hover:bg-gray-100'
+              }`}
+          >
+            {isSigningOut ? 'Signing out...' : 'Sign out'}
+          </button>
         </div>
       );
     }
@@ -95,13 +139,17 @@ export function HeaderClient({ user }: HeaderClientProps) {
         </Button>
       </div>
     );
-  };
+  }, [user, profile, isSigningOut, handleSignOut]);
+
+  if (isLoading) {
+    return <LoadingModal />;
+  }
 
   return (
     <motion.div
       animate={{ opacity: 1 }}
       initial={{ opacity: 0 }}
-      transition={{ duration: 1 }}
+      transition={{ duration: 0.5 }}
       className="w-full bg-white shadow-md"
     >
       {/* Top Bar */}
@@ -110,13 +158,22 @@ export function HeaderClient({ user }: HeaderClientProps) {
           <Logo />
           {/* Desktop Auth Section */}
           <div className="hidden md:flex items-center gap-4">
+            {profile?.is_admin && (
+              <Link
+                href="/admin/dashboard"
+                className="flex items-center gap-2 rounded-lg bg-purple-100 px-3 py-1.5 text-sm font-medium text-purple-700 transition-colors hover:bg-purple-200"
+              >
+                <FaChartLine className="text-sm" />
+                <span>Dashboard</span>
+              </Link>
+            )}
             {renderAuthSection()}
           </div>
           {/* Mobile Hamburger */}
           <Button
             variant="ghost"
             className="md:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            onClick={toggleMenu}
           >
             <FaBars className="text-xl text-gray-600" />
           </Button>
@@ -127,6 +184,15 @@ export function HeaderClient({ user }: HeaderClientProps) {
       {isMenuOpen && (
         <div className="md:hidden border-b border-gray-200">
           <div className="container py-4">
+            {profile?.is_admin && (
+              <Link
+                href="/admin/dashboard"
+                className="mb-4 flex items-center gap-2 rounded-lg bg-purple-100 px-3 py-2 text-sm font-medium text-purple-700 transition-colors hover:bg-purple-200"
+              >
+                <FaChartLine className="text-sm" />
+                <span>Admin Dashboard</span>
+              </Link>
+            )}
             {renderAuthSection()}
           </div>
         </div>
@@ -139,27 +205,15 @@ export function HeaderClient({ user }: HeaderClientProps) {
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
             <h2 className="text-base lg:text-lg font-semibold text-gray-700">Share:</h2>
             <div className="flex flex-wrap gap-3 sm:gap-4 text-xs sm:text-sm">
-              <Link
-                href="/share-prayer-request"
-                className="flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-gray-900"
-              >
-                <FaPrayingHands className="text-blue-500 text-sm sm:text-base" />
+              <NavLink href="/share-prayer-request" icon={FaPrayingHands}>
                 Prayer Requests
-              </Link>
-              <Link
-                href="/share-bible-study"
-                className="flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-gray-900"
-              >
-                <FaBible className="text-green-500 text-sm sm:text-base" />
+              </NavLink>
+              <NavLink href="/share-bible-study" icon={FaBible}>
                 Bible Study
-              </Link>
-              <Link
-                href="/share-testimony"
-                className="flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-gray-900"
-              >
-                <FaCommentAlt className="text-purple-500 text-sm sm:text-base" />
+              </NavLink>
+              <NavLink href="/share-testimony" icon={FaCommentAlt}>
                 Testimonies
-              </Link>
+              </NavLink>
             </div>
           </div>
 
@@ -167,27 +221,15 @@ export function HeaderClient({ user }: HeaderClientProps) {
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
             <h2 className="text-base lg:text-lg font-semibold text-gray-700">View:</h2>
             <div className="flex flex-wrap gap-3 sm:gap-4 text-xs sm:text-sm">
-              <Link
-                href="/prayer-requests"
-                className="flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-gray-900"
-              >
-                <FaPrayingHands className="text-blue-500 text-sm sm:text-base" />
+              <NavLink href="/prayer-requests" icon={FaPrayingHands}>
                 Prayer Requests
-              </Link>
-              <Link
-                href="/bible-studies"
-                className="flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-gray-900"
-              >
-                <FaBible className="text-green-500 text-sm sm:text-base" />
-                Bible Studies
-              </Link>
-              <Link
-                href="/testimonies"
-                className="flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-gray-900"
-              >
-                <FaCommentAlt className="text-purple-500 text-sm sm:text-base" />
+              </NavLink>
+              <NavLink href="/bible-studies" icon={FaBible}>
+                Bible Study
+              </NavLink>
+              <NavLink href="/testimonies" icon={FaCommentAlt}>
                 Testimonies
-              </Link>
+              </NavLink>
             </div>
           </div>
         </div>

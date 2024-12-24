@@ -43,14 +43,14 @@ export default function ForgotPassword() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900">Reset Password</h1>
           <p className="mt-2 text-sm text-gray-600">
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we will send you a link to reset your password.
           </p>
         </div>
 
         {isEmailSent ? (
           <div className="rounded-lg bg-green-50 p-4 text-center">
             <p className="text-sm text-green-800">
-              Check your email for the reset link. The link will expire in 24 hours.
+              If that email is valid, you will receive a link to reset your password. The link will expire in 24 hours.
             </p>
             <Link
               href="/sign-in"
@@ -91,8 +91,8 @@ export default function ForgotPassword() {
               >
                 Back to Sign In
               </Link>
-            </div>
-          </form>
+        </div>
+      </form>
         )}
       </div>
       <ToastContainer />

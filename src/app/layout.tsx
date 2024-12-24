@@ -1,19 +1,12 @@
 import "./globals.css";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-
+import { ToasterProvider } from "@/components/providers/toaster-provider";
 
 import type { Metadata } from "next";
-import { Nunito_Sans, Oxygen } from "next/font/google";
+import { Oxygen } from "next/font/google";
 
 import { cn } from "@/lib/utils";
-
-const fontSans = Nunito_Sans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  weight: ["300", "400", "700"],
-  display: "swap",
-});
 
 const fontHeading = Oxygen({
   subsets: ["latin"],
@@ -33,17 +26,43 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-      <html lang="en" className={cn(fontSans.variable, fontHeading.variable)}>
-        <body
-          className={cn(
-            "min-h-screen font-sans antialiased",
-          )}
-        >
-          <Header />
-          {children}
-          <Footer />
-        </body>
-      </html>
+    <html lang="en" className={cn(fontHeading.variable)}>
+      <body
+        className={cn(
+          "min-h-screen font-sans antialiased",
+          "bg-[linear-gradient(to_bottom,#f8fafc,#ffffff)]"
+        )}
+      >
+        {/* Background decorative elements */}
+        <div className="fixed inset-0 -z-10 overflow-hidden">
+          {/* Grid pattern */}
+          <div 
+            className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] 
+            bg-[size:14px_24px]"
+          />
+          
+          {/* Gradient blobs */}
+          <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[300px] w-full 
+            bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 blur-[100px]" 
+          />
+          <div className="absolute left-[20%] top-[20%] h-[200px] w-[300px] 
+            bg-gradient-to-r from-blue-400/30 to-cyan-400/30 blur-[60px]" 
+          />
+          <div className="absolute right-[20%] top-[40%] h-[300px] w-[250px] 
+            bg-gradient-to-r from-purple-400/30 to-pink-400/30 blur-[60px]" 
+          />
+        </div>
 
+        {/* Main content */}
+        <div className="relative">
+          <Header />
+          <main className="min-h-screen backdrop-blur-[2px]">
+            {children}
+          </main>
+          <Footer />
+          <ToasterProvider />
+        </div>
+      </body>
+    </html>
   );
 }

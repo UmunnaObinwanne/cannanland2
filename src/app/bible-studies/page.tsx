@@ -24,8 +24,8 @@ export default async function BibleStudiesPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-8">
-      <h1 className="mb-8 text-2xl font-bold">Bible Studies</h1>
+    <div className="container mx-auto max-w-4xl px-2 sm:px-4 py-4 sm:py-8">
+      <h1 className="mb-4 sm:mb-8 text-2xl font-bold">Bible Studies</h1>
       <div className="space-y-4">
         {posts?.map((post) => (
           <div key={post.id} className="rounded-lg bg-white p-6 shadow-md">
