@@ -14,6 +14,7 @@ interface SignInProps {
   searchParams: { 
     error?: string;
     message?: string;
+    redirect?: string;
   };
 }
 
@@ -57,15 +58,15 @@ export default function SignIn({ searchParams }: SignInProps) {
     return true;
   };
 
-  const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-
     try {
+      const formData = new FormData(e.currentTarget);
+      const email = formData.get('email') as string;
+      const password = formData.get('password') as string;
+
       const supabase = createClient();
       const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -78,14 +79,20 @@ export default function SignIn({ searchParams }: SignInProps) {
       }
 
       toast.success('Signed in successfully');
-      router.push('/');
+      
+      // Redirect to the original URL if it exists, otherwise go to home
+      if (searchParams.redirect) {
+        router.push(searchParams.redirect);
+      } else {
+        router.push('/');
+      }
       router.refresh();
     } catch (error) {
       toast.error('An error occurred while signing in');
     } finally {
       setIsLoading(false);
     }
-  }, [formData, router]);
+  };
 
   // Memoized form section
   const renderForm = useCallback(() => (

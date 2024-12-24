@@ -36,6 +36,21 @@ export async function middleware(request: NextRequest) {
 
   const { data: { session } } = await supabase.auth.getSession()
 
+  // Protect share routes
+  if (
+    request.nextUrl.pathname.startsWith('/share-prayer-request') ||
+    request.nextUrl.pathname.startsWith('/share-bible-study') ||
+    request.nextUrl.pathname.startsWith('/share-testimony')
+  ) {
+    if (!session) {
+      // Store the original URL they were trying to visit
+      const redirectUrl = new URL('/sign-in', request.url)
+      redirectUrl.searchParams.set('redirect', request.nextUrl.pathname)
+      return NextResponse.redirect(redirectUrl)
+    }
+  }
+
+  // Continue with existing admin protection
   if (request.nextUrl.pathname.startsWith('/admin')) {
     if (!session) {
       return NextResponse.redirect(new URL('/sign-in', request.url))
@@ -56,5 +71,10 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: [
+    '/admin/:path*',
+    '/share-prayer-request',
+    '/share-bible-study',
+    '/share-testimony'
+  ],
 } 
