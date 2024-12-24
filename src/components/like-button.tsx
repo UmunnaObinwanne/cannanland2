@@ -4,6 +4,7 @@ import { FaHeart } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { toggleLikeAction } from "@/app/actions";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 //import { useToast } from "@/components/ui/use-toast";
 
 interface LikeButtonProps {
@@ -12,6 +13,14 @@ interface LikeButtonProps {
   initialLikesCount: number;
   initialIsLiked: boolean;
   isLoggedIn: boolean;
+}
+
+interface ToggleLikeResult {
+  success: boolean;
+  hasLiked?: boolean;
+  newCount?: number;
+  error?: string;
+  message?: string;
 }
 
 export function LikeButton({ 
@@ -46,17 +55,17 @@ export function LikeButton({
     setIsLoading(true);
 
     try {
-      const result = await toggleLikeAction(postId, postType);
+      const result = await toggleLikeAction(postId, postType) as ToggleLikeResult;
       
-      if (result.success) {
+      if (result.success && typeof result.hasLiked === 'boolean' && typeof result.newCount === 'number') {
         setIsLiked(result.hasLiked);
         setLikesCount(result.newCount);
         console.log('Like updated:', { hasLiked: result.hasLiked, count: result.newCount });
       } else {
-        console.error('Failed to update like:', result.error);
+        throw new Error(result.error || 'Failed to update like');
       }
     } catch (error) {
-      console.error('Error in handleLike:', error);
+      console.error('Error:', error);
     } finally {
       setIsLoading(false);
     }

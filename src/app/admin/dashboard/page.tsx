@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { createClient } from '../../../../utils/supabase/client';
+import { useEffect, useState, useCallback } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
 import DOMPurify from 'isomorphic-dompurify';
 import { useRouter } from 'next/navigation';
@@ -34,34 +34,7 @@ export default function AdminDashboard() {
   const router = useRouter();
   const { showToast, ToastContainer } = useToast();
 
-  useEffect(() => {
-    async function checkAdminStatus() {
-      const supabase = createClient();
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      
-      if (!user || userError) {
-        router.push('/sign-in');
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('is_admin')
-        .eq('id', user.id)
-        .single();
-
-      if (!profile?.is_admin) {
-        router.push('/');
-        return;
-      }
-
-      loadPosts();
-    }
-
-    checkAdminStatus();
-  }, [filter]);
-
-  async function loadPosts() {
+  const loadPosts = useCallback(async () => {
     setIsLoading(true);
     const supabase = createClient();
 
@@ -103,7 +76,36 @@ export default function AdminDashboard() {
 
     setPosts(allPosts);
     setIsLoading(false);
-  }
+  }, [filter]);
+
+  useEffect(() => {
+    loadPosts();
+  }, [loadPosts]);
+
+  useEffect(() => {
+    async function checkAdminStatus() {
+      const supabase = createClient();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (!user || userError) {
+        router.push('/sign-in');
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single();
+
+      if (!profile?.is_admin) {
+        router.push('/');
+        return;
+      }
+    }
+
+    checkAdminStatus();
+  }, [filter, loadPosts, router]);
 
   async function handleStatusUpdate(post: Post, newStatus: 'approved' | 'rejected' | 'pending') {
     const supabase = createClient();

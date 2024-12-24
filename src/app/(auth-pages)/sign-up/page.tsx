@@ -5,25 +5,33 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import Image from "next/image";
 import { signUpAction } from "./../../actions";
-import { createClient } from "../../../../utils/supabase/server";
-import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { redirect, useRouter } from "next/navigation";
 import { toast } from 'sonner';
+import { useEffect, useState } from 'react';
 
-export default async function Signup({
+export default function Signup({
   searchParams,
 }: {
   searchParams: { error?: string };
 }) {
-  const supabase = await createClient();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Get current user from session
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  useEffect(() => {
+    const checkUser = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        router.push('/');
+      }
+      setIsLoading(false);
+    };
+    checkUser();
+  }, [router]);
 
-  // Redirect if user is logged in
-  if (user) {
-    redirect("/sign-in"); // Redirect to the homepage or any other page you prefer
+  if (isLoading) {
+    return null; // or a loading spinner
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

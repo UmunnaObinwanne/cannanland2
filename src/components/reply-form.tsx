@@ -4,8 +4,14 @@
 import { handleCreateResponse } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
+import { createClient } from "@/lib/supabase/client";
 
-export function ReplyForm({ postId, postType }: { postId: string; postType: string }) {
+interface ReplyFormProps {
+  postId: string;
+  postType: string;
+}
+
+export function ReplyForm({ postId, postType }: ReplyFormProps) {
   //const { toast } = useToast();
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);

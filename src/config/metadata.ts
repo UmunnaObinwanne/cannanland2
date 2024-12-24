@@ -16,6 +16,8 @@ export const baseMetadata: Metadata = {
   description: siteConfig.description,
   keywords: [
     'Christian community',
+    'Christian forum',
+    'Prayer forum',
     'Prayer requests',
     'Bible study',
     'Testimonies',
@@ -61,11 +63,8 @@ export const baseMetadata: Metadata = {
     },
   },
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
-    apple: '/apple-touch-icon.png',
+    icon: '/favicon.ico'
   },
-  manifest: '/site.webmanifest',
 }
 
 export default siteConfig 

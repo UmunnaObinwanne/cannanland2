@@ -1,9 +1,20 @@
 import { getUserProfile } from "@/app/actions";
-import { createClient } from "../../../utils/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Image from "next/image";
 import { formatDistanceToNow } from 'date-fns';
 import Link from "next/link";
+
+interface UserPost {
+  id: string;
+  title: string;
+  content: string;
+  created_at: string;
+  profiles: {
+    username: string;
+  };
+  slug: string;
+}
 
 async function getUserPosts(userId: string) {
   const supabase = await createClient();

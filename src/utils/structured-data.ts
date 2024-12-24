@@ -1,4 +1,4 @@
-import { Post } from "@/types"
+import type { Post } from "@/lib/supabase/types"
 
 export function generatePostStructuredData({
   post,

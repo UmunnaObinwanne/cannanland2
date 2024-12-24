@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "../../../../utils/supabase/client";
-import { Profile } from "../../../../utils/supabase/types";
+import { createClient } from "@/lib/supabase/client";
+import { Profile } from "@/lib/supabase/types";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";

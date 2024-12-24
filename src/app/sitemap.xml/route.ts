@@ -1,8 +1,8 @@
-import { createClient } from "../../../utils/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 
 export async function GET() {
   const supabase = await createClient()
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://cannanland.com'
 
   // Fetch all posts
   const [bibleStudies, prayerRequests, testimonies, questions] = await Promise.all([
@@ -42,7 +42,8 @@ export async function GET() {
   })
 }
 
-function generateUrlEntry(url: string, lastmod: string) {
+function generateUrlEntry(url: string | undefined, lastmod: string) {
+  if (!url) return '';
   return `
     <url>
       <loc>${url}</loc>

@@ -1,3 +1,5 @@
+// Move the contents of utils/supabase/types.ts here
+
 export type Json =
   | string
   | number
@@ -478,3 +480,28 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
+export interface Post {
+  id: string;
+  title: string;
+  content: string;
+  created_at: string;
+  updated_at?: string | null;
+  likes_count: number;
+  is_anonymous: boolean;
+  profiles: {
+    username: string;
+    avatar_url?: string | null;
+  };
+  user_likes?: string[] | null;
+  responses?: Array<{
+    id: string;
+    content: string;
+    created_at: string;
+    profiles: {
+      username: string;
+      avatar_url?: string | null;
+    };
+  }> | null;
+  slug: string;
+}

@@ -1,6 +1,6 @@
 "use server";
-import { encodedRedirect } from "../../utils/utils";
-import { createClient } from "../../utils/supabase/server";
+import { encodedRedirect } from "./utils/utils";
+import { createClient } from "@/lib/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from 'next/cache';
@@ -83,16 +83,14 @@ export const forgotPasswordAction = async (formData: FormData) => {
   };
 };
 
-export async function resetPasswordAction(formData: FormData) {
+export async function resetPasswordAction(formData: FormData): Promise<void> {
   'use server';
 
   const password = formData.get('password') as string;
   const confirmPassword = formData.get('confirmPassword') as string;
 
   if (password !== confirmPassword) {
-    return {
-      error: 'Passwords do not match',
-    };
+    throw new Error('Passwords do not match');
   }
 
   try {
@@ -107,9 +105,7 @@ export async function resetPasswordAction(formData: FormData) {
     redirect('/sign-in?message=Password updated successfully. Please sign in with your new password.');
 
   } catch (error) {
-    return {
-      error: 'Failed to update password. Please try again.',
-    };
+    throw new Error('Failed to update password. Please try again.');
   }
 }
 
@@ -142,7 +138,13 @@ export async function getUserProfile() {
   return profile;
 }
 
-export async function toggleLikeAction(postId: string, postType: string) {
+export async function toggleLikeAction(postId: string, postType: string): Promise<{
+  success: boolean;
+  hasLiked?: boolean;
+  newCount?: number;
+  error?: string;
+  message?: string;
+}> {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -219,21 +221,19 @@ export async function toggleLikeAction(postId: string, postType: string) {
 }
 
 export async function createResponse(formData: FormData) {
-  'use server'
-  
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
-      return { error: "Must be logged in to reply" };
+      return { error: "Not authenticated" };
     }
 
+    const content = formData.get('content') as string;
     const postId = formData.get('postId') as string;
     const postType = formData.get('postType') as string;
-    const content = formData.get('content') as string;
 
-    // Map the URL postType to the correct response table name
+    // Map the URL postType to the correct response table
     const responseTable = {
       'bible-studies': 'biblestudy_responses',
       'prayer-requests': 'prayer_responses',
@@ -250,14 +250,7 @@ export async function createResponse(formData: FormData) {
       'bible-studies': 'request_id',
       'prayer-requests': 'request_id',
       'testimonies': 'request_id'
-    }[postType];
-
-    console.log('Creating response with:', {
-      table: responseTable,
-      foreignKey: foreignKeyId,
-      postId,
-      userId: user.id
-    });
+    }[postType] as string;
 
     const { error } = await supabase
       .from(responseTable)
@@ -268,12 +261,8 @@ export async function createResponse(formData: FormData) {
         [foreignKeyId]: postId
       });
 
-    if (error) {
-      console.error('Supabase error:', error);
-      throw error;
-    }
+    if (error) throw error;
 
-    revalidatePath(`/${postType}/${postId}`);
     return { success: true };
   } catch (error) {
     console.error('Error creating response:', error);

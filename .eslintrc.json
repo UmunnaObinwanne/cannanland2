@@ -5,6 +5,12 @@
     "tailwindcss": {
       "callees": ["clsx", "cva", "cn"],
       "config": "tailwind.config.ts"
-    }
+    },
+    "rules": {
+    "tailwindcss/classnames-order": "off",
+    "tailwindcss/no-custom-classname": "off",
+    "tailwindcss/no-contradicting-classname": "error",
+    "react-hooks/exhaustive-deps": "warn"
+  }
   }
 }

@@ -24,7 +24,7 @@ export function Hero() {
 >
   The community to connect and 
   <span className="px-4">grow</span> 
-  <span className="text-primary bg-clip-text text-transparent bg-gradient-to-br from-accent to-primary">
+  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
     your spiritual life
   </span>
 </motion.h1>

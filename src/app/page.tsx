@@ -1,4 +1,4 @@
-import { createClient } from "../../utils/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import { LikeButton } from "@/components/like-button";
@@ -118,7 +118,7 @@ export default async function Home() {
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-blue-100">
               Join our community of believers sharing prayer requests, bible studies, and testimonies.
-              Let's grow together in faith and support one another.
+              Let us grow together in faith and support one another.
             </p>
             <div className="mx-auto mt-10 max-w-sm space-y-4">
               <Link
@@ -202,7 +202,7 @@ export default async function Home() {
                             {post.type === 'bible_study' && <FaBible className="text-xs" />}
                             {post.type === 'prayer_request' && <FaPrayingHands className="text-xs" />}
                             {post.type === 'testimony' && <FaHeart className="text-xs" />}
-                            <span>{post.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                            <span>{post.type.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}</span>
                           </span>
                           <LikeButton
                             postId={post.id}

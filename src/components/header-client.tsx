@@ -9,8 +9,8 @@ import { FaPrayingHands, FaBible, FaCommentAlt, FaBars, FaChartLine, FaQuestion 
 import { useState, useCallback, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
 import Image from "next/image";
-import { createClient } from "../../utils/supabase/client";
-import { Profile } from "../../utils/supabase/types";
+import { createClient } from "@/lib/supabase/client";
+import { Profile } from "@/lib/supabase/types";
 import { useRouter } from 'next/navigation';
 import { LoadingModal } from "@/components/loading-modal";
 import { toast } from 'sonner';

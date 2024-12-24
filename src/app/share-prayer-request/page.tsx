@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { createClient } from '../../../utils/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { LoadingModal } from '@/components/loading-modal';
 
 // Import Quill dynamically to avoid SSR issues

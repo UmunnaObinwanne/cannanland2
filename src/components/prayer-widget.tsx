@@ -48,7 +48,7 @@ export function PrayerWidget() {
 
         <text x="100" y="320" fontFamily="Arial, sans-serif" fontSize="20" 
               textAnchor="middle" fill="white" opacity="0.9">
-          We're Here
+          We&apos;re Here
         </text>
         <text x="100" y="350" fontFamily="Arial, sans-serif" fontSize="20" 
               textAnchor="middle" fill="white" opacity="0.9">

@@ -1,4 +1,4 @@
-import { createClient } from "../../../utils/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import { LikeButton } from "@/components/like-button";

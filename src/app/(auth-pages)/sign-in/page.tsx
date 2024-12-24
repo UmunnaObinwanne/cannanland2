@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '../../../../utils/supabase/client';
+import { createClient } from "@/lib/supabase/client";
 import { LoadingModal } from '@/components/loading-modal';
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -171,7 +171,7 @@ export default function SignIn({ searchParams }: SignInProps) {
 
       {/* Sign-Up Link */}
       <p className="text-center text-xs text-gray-500">
-        Don't have an account?{" "}
+        Don&apos;t have an account?{" "}
         <Link href="/sign-up" className="text-blue-500 hover:text-blue-600">
           Sign up
         </Link>

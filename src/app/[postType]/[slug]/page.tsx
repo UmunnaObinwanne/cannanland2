@@ -1,4 +1,4 @@
-import { createClient } from "../../../../utils/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { formatDistanceToNow } from "date-fns";
 import { FaHeart, FaReply } from "react-icons/fa";
 import { LikeButton } from "@/components/like-button";
@@ -76,10 +76,10 @@ export async function generateMetadata({ params }: {
 }): Promise<Metadata> {
   const supabase = await createClient();
   
-  // Get the post data
+  // Get the post data with all fields
   const { data: post } = await supabase
     .from(TABLE_MAP[params.postType]?.table)
-    .select('title, content')
+    .select('*, profiles(username)')  // Select all fields plus profile
     .eq('slug', params.slug)
     .single();
 

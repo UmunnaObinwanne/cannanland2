@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { createClient } from '../../../../utils/supabase/client';
+import { createClient } from "@/lib/supabase/client";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
@@ -38,27 +38,27 @@ export default function ResetPassword() {
     }
   }, [error]);
 
-  const validateForm = (): boolean => {
-    if (formData.password.length < 6) {
-      setError({ 
-        field: 'password', 
-        message: 'Password must be at least 6 characters long' 
-      });
-      return false;
-    }
-    if (formData.password !== formData.confirmPassword) {
-      setError({ 
-        field: 'confirmPassword', 
-        message: 'Passwords do not match' 
-      });
-      return false;
-    }
-    return true;
-  };
-
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
+    const validateForm = (): boolean => {
+      if (formData.password.length < 6) {
+        setError({ 
+          field: 'password', 
+          message: 'Password must be at least 6 characters long' 
+        });
+        return false;
+      }
+      if (formData.password !== formData.confirmPassword) {
+        setError({ 
+          field: 'confirmPassword', 
+          message: 'Passwords do not match' 
+        });
+        return false;
+      }
+      return true;
+    };
+
     if (!validateForm()) {
       return;
     }
@@ -76,10 +76,8 @@ export default function ResetPassword() {
 
       showToast('Password updated successfully', 'success');
       
-      // Set redirecting state to show loading modal
       setIsRedirecting(true);
       
-      // Use Promise and setTimeout for better control
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       router.push('/sign-in?message=Password updated successfully. Please sign in with your new password.');
