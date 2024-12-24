@@ -233,6 +233,9 @@ export function HeaderClient({ user }: HeaderClientProps) {
               <NavLink href="/testimonies" icon={FaCommentAlt}>
                 Testimonies
               </NavLink>
+              <NavLink href="/spiritual-questions" icon={FaQuestion}>
+                Spiritual Questions
+              </NavLink>
             </div>
           </div>
         </div>

@@ -7,6 +7,19 @@ import { FaPrayingHands, FaBible, FaHeart, FaComments } from 'react-icons/fa';
 import { PrayerWidget } from "@/components/prayer-widget";
 import { BibleStudyWidget } from "@/components/bible-study-widget";
 import { formatPostType, slugifyPostType } from '@/utils/post-types';
+import { Metadata } from 'next'
+import { baseMetadata } from '@/config/metadata'
+
+export const metadata: Metadata = {
+  ...baseMetadata,
+  title: 'Home',
+  description: 'Join our Christian community to share and receive prayer requests, study the Bible together, and grow in faith.',
+  openGraph: {
+    ...baseMetadata.openGraph,
+    title: 'Home | Cannanland',
+    description: 'Join our Christian community to share and receive prayer requests, study the Bible together, and grow in faith.',
+  }
+}
 
 export default async function Home() {
   const supabase = await createClient();
@@ -55,8 +68,44 @@ export default async function Home() {
     ...(spiritualQuestions.data || []).map(post => ({ ...post, type: 'spiritual_question' }))
   ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
+  // Generate structured data for the homepage
+  const websiteStructured = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Cannanland",
+    description: "A Christian community platform for sharing prayer requests, Bible studies, testimonies, and spiritual questions.",
+    url: process.env.NEXT_PUBLIC_APP_URL,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${process.env.NEXT_PUBLIC_APP_URL}/search?q={search_term_string}`
+      },
+      "query-input": "required name=search_term_string"
+    }
+  };
+
+  const organizationStructured = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Cannanland",
+    url: process.env.NEXT_PUBLIC_APP_URL,
+    logo: `${process.env.NEXT_PUBLIC_APP_URL}/logo.png`,
+    sameAs: [
+      "https://twitter.com/cannanland",
+      "https://facebook.com/cannanland",
+      // Add other social media URLs
+    ]
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([websiteStructured, organizationStructured]),
+        }}
+      />
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-b from-blue-900 to-blue-800 py-16 sm:py-24">
         <div className="absolute inset-0">

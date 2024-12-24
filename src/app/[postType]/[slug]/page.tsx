@@ -8,6 +8,9 @@ import { createResponse } from "@/app/actions";
 import { User } from '@supabase/supabase-js';
 import { ReplyForm } from "@/components/reply-form";
 import DOMPurify from 'isomorphic-dompurify';
+import { Metadata } from 'next'
+import { baseMetadata } from '@/config/metadata'
+import { generatePostStructuredData } from "@/utils/structured-data";
 
 // Add this configuration to disable static path generation
 export const dynamic = 'force-dynamic';
@@ -67,6 +70,46 @@ const TABLE_MAP: Record<string, TableConfig> = {
     responseTable: 'spiritual_question_responses'
   }
 };
+
+export async function generateMetadata({ params }: {
+  params: { postType: string; slug: string }
+}): Promise<Metadata> {
+  const supabase = await createClient();
+  
+  // Get the post data
+  const { data: post } = await supabase
+    .from(TABLE_MAP[params.postType]?.table)
+    .select('title, content')
+    .eq('slug', params.slug)
+    .single();
+
+  if (!post) {
+    return baseMetadata;
+  }
+
+  const title = `${post.title} | ${params.postType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
+  const description = post.content.substring(0, 155) + '...';
+
+  return {
+    ...baseMetadata,
+    title,
+    description,
+    openGraph: {
+      ...baseMetadata.openGraph,
+      title,
+      description,
+      type: 'article',
+      publishedTime: post.created_at,
+      modifiedTime: post.updated_at,
+      authors: post.is_anonymous ? ['Anonymous'] : [`@${post.profiles.username}`],
+    },
+    twitter: {
+      ...baseMetadata.twitter,
+      title,
+      description,
+    }
+  }
+}
 
 export default async function PostDetailPage({
   params,
@@ -144,7 +187,24 @@ export default async function PostDetailPage({
 
   const typedPost = post as unknown as Post;
 
+  // Generate the full URL for the current page
+  const url = `${process.env.NEXT_PUBLIC_APP_URL}/${params.postType}/${params.slug}`;
+
+  // Generate structured data
+  const structuredData = generatePostStructuredData({
+    post: typedPost,
+    url,
+    type: params.postType,
+  });
+
   return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData),
+        }}
+      />
     <div className="container mx-auto max-w-4xl px-4 py-8">
       {/* Original Post */}
       <div className="rounded-lg bg-white p-6 shadow-md">
@@ -249,5 +309,6 @@ export default async function PostDetailPage({
         ))}
       </div>
     </div>
+    </>
   );
 }

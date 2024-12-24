@@ -23,7 +23,39 @@ export default async function PrayerRequestsPage() {
     return <div>Error loading prayer requests</div>;
   }
 
+  const collectionStructured = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Prayer Requests",
+    description: "Browse and share prayer requests in our Christian community",
+    url: `${process.env.NEXT_PUBLIC_APP_URL}/prayer-requests`,
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: posts?.map((post, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": "Article",
+          headline: post.title,
+          author: {
+            "@type": "Person",
+            name: post.is_anonymous ? "Anonymous" : post.profiles.username,
+          },
+          datePublished: post.created_at,
+          url: `${process.env.NEXT_PUBLIC_APP_URL}/prayer-request/${post.slug}`,
+        },
+      })),
+    },
+  };
+
   return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(collectionStructured),
+        }}
+      />
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto max-w-4xl px-2 sm:px-4 py-4 sm:py-8">
         <h1 className="mb-4 sm:mb-8 text-2xl font-bold">Prayer Requests</h1>
@@ -106,5 +138,6 @@ export default async function PrayerRequestsPage() {
         </div>
       </div>
     </div>
+    </>
   );
 } 
