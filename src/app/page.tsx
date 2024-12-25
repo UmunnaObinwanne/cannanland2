@@ -164,9 +164,9 @@ export default async function Home() {
                         href={`/${slugifyPostType(post.type)}/${post.slug}`}
                         className="block space-y-1"
                       >
-                        <h3 className="text-xl font-bold text-gray-900 transition-colors group-hover:text-blue-600">
+                        <h2 className="text-xl font-bold text-gray-900 transition-colors group-hover:text-blue-600">
                           {post.title}
-                        </h3>
+                        </h2>
                          </Link>
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <span className="flex items-center gap-1">
