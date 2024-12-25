@@ -220,37 +220,63 @@ export async function toggleLikeAction(postId: string, postType: string): Promis
   }
 }
 
+// Define table mapping first
+const tableMap = {
+  'bible-study': 'bible_studies',
+  'prayer-request': 'prayer_requests',
+  'testimony': 'testimonies',
+  'spiritual-question': 'spiritual_questions'
+} as const;
+
+// Then define response table mapping using the table map type
+type TableToResponseMap = {
+  [K in (typeof tableMap)[keyof typeof tableMap]]: string;
+};
+
+const responseTableMap: TableToResponseMap = {
+  'bible_studies': 'biblestudy_responses',
+  'prayer_requests': 'prayer_responses',
+  'testimonies': 'testimony_responses',
+  'spiritual_questions': 'spiritual_question_responses'
+} as const;
+
 export async function createResponse(formData: FormData) {
+  'use server'
+  
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-
+    
     if (!user) {
-      return { error: "Not authenticated" };
+      return { error: "Must be logged in to reply" };
     }
 
+    const slug = formData.get('postId') as string;
+    const postType = formData.get('postType') as keyof typeof tableMap;
     const content = formData.get('content') as string;
-    const postId = formData.get('postId') as string;
-    const postType = formData.get('postType') as string;
 
-    // Map the URL postType to the correct response table
-    const responseTable = {
-      'bible-studies': 'biblestudy_responses',
-      'prayer-requests': 'prayer_responses',
-      'testimonies': 'testimony_responses'
-    }[postType];
-
-    if (!responseTable) {
-      console.error('Invalid post type for response:', postType);
+    const table = tableMap[postType];
+    if (!table) {
       return { error: `Invalid post type: ${postType}` };
     }
 
-    // Map the URL postType to the correct foreign key name
-    const foreignKeyId = {
-      'bible-studies': 'request_id',
-      'prayer-requests': 'request_id',
-      'testimonies': 'request_id'
-    }[postType] as string;
+    // First get the actual post ID using the slug
+    const { data: post, error: fetchError } = await supabase
+      .from(table)
+      .select('id')
+      .eq('slug', slug)
+      .single();
+
+    if (fetchError || !post) {
+      console.error('Error fetching post:', fetchError);
+      return { error: "Failed to find post" };
+    }
+
+    // Map to response tables
+    const responseTable = responseTableMap[table as keyof typeof responseTableMap];
+    if (!responseTable) {
+      return { error: "Invalid response table mapping" };
+    }
 
     const { error } = await supabase
       .from(responseTable)
@@ -258,11 +284,11 @@ export async function createResponse(formData: FormData) {
         content,
         user_id: user.id,
         profile_id: user.id,
-        [foreignKeyId]: postId
+        request_id: post.id
       });
 
     if (error) throw error;
-
+    
     return { success: true };
   } catch (error) {
     console.error('Error creating response:', error);
