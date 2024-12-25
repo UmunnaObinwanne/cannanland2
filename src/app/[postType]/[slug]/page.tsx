@@ -11,6 +11,7 @@ import DOMPurify from 'isomorphic-dompurify';
 import { Metadata } from 'next'
 import { baseMetadata } from '@/config/metadata'
 import { generatePostStructuredData } from "@/utils/structured-data";
+import { ResponsesSection } from "@/components/responses-section";
 
 // Add this configuration to disable static path generation
 export const dynamic = 'force-dynamic';
@@ -277,37 +278,8 @@ export default async function PostDetailPage({
         </div>
       )}
 
-      {/* Responses */}
-      <div className="mt-8 space-y-6">
-        <h3 className="text-lg font-semibold">Responses ({typedPost.responses?.length || 0})</h3>
-        {typedPost.responses?.map((response) => (
-          <div key={response.id} className="rounded-lg bg-white p-6 shadow-md">
-            <div className="mb-2 flex items-center gap-3">
-              <div className="relative h-8 w-8 overflow-hidden rounded-full">
-                {response.profiles.avatar_url ? (
-                  <Image
-                    src={response.profiles.avatar_url}
-                    alt={response.profiles.username}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-gray-200 text-sm">
-                    {response.profiles.username?.[0]?.toUpperCase()}
-                  </div>
-                )}
-              </div>
-              <div>
-                <p className="font-medium">@{response.profiles.username}</p>
-                <p className="text-xs text-gray-500">
-                  {formatDistanceToNow(new Date(response.created_at || Date.now()))} ago
-                </p>
-              </div>
-            </div>
-            <p className="whitespace-pre-wrap text-gray-700">{response.content}</p>
-          </div>
-        ))}
-      </div>
+      {/* Responses Section */}
+      <ResponsesSection responses={typedPost.responses} />
     </div>
     </>
   );

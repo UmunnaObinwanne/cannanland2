@@ -1,10 +1,10 @@
 'use client';
 
-//import { useToast } from "@/components/ui/use-toast";
 import { handleCreateResponse } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { createClient } from "@/lib/supabase/client";
+import { LoadingSpinner } from './loading-spinner';
 
 interface ReplyFormProps {
   postId: string;
@@ -12,13 +12,14 @@ interface ReplyFormProps {
 }
 
 export function ReplyForm({ postId, postType }: ReplyFormProps) {
-  //const { toast } = useToast();
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setIsSubmitting(true);
     const formData = new FormData(e.currentTarget);
 
     try {
@@ -26,34 +27,34 @@ export function ReplyForm({ postId, postType }: ReplyFormProps) {
       if (result?.success) {
         formRef.current?.reset();
         setIsOpen(false);
-        //toast({ title: "Success", description: "Your reply has been posted" });
         router.refresh();
       }
     } catch (error) {
-      //toast({ title: "Error", description: "Failed to post reply" });
+      console.error('Failed to post reply:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
   if (!isOpen) {
     return (
-      <div className="mt-8 text-center">
-        <button 
-          onClick={() => setIsOpen(true)}
-          className="rounded-md bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600"
-        >
-          Write a Reply
-        </button>
-      </div>
+      <button
+        onClick={() => setIsOpen(true)}
+        className="mt-8 flex w-full items-center justify-center rounded-lg border border-gray-200 p-4 text-gray-500 hover:bg-gray-50"
+      >
+        Write a response...
+      </button>
     );
   }
 
   return (
-    <div className="mt-8 rounded-lg bg-white p-6 shadow-md">
+    <div className="mt-8 rounded-lg border border-gray-200 bg-white p-4">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Leave a Reply</h3>
         <button 
           onClick={() => setIsOpen(false)}
           className="text-gray-500 hover:text-gray-700"
+          disabled={isSubmitting}
         >
           Cancel
         </button>
@@ -68,10 +69,22 @@ export function ReplyForm({ postId, postType }: ReplyFormProps) {
           placeholder="Write your reply..."
           required
           autoFocus
+          disabled={isSubmitting}
         />
         <div className="mt-4 flex justify-end">
-          <button type="submit" className="rounded-md bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600">
-            Post Reply
+          <button 
+            type="submit" 
+            disabled={isSubmitting}
+            className="flex items-center gap-2 rounded-md bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 disabled:opacity-50"
+          >
+            {isSubmitting ? (
+              <>
+                <LoadingSpinner className="h-4 w-4" />
+                Posting...
+              </>
+            ) : (
+              'Post Reply'
+            )}
           </button>
         </div>
       </form>

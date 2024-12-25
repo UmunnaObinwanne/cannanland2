@@ -284,7 +284,7 @@ export async function createResponse(formData: FormData) {
         content,
         user_id: user.id,
         profile_id: user.id,
-        request_id: post.id
+        response_id: post.id
       });
 
     if (error) throw error;
