@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import { FaHeart, FaReply } from "react-icons/fa";
 import { LikeButton } from "@/components/like-button";
 import Image from "next/image";
@@ -125,8 +125,6 @@ export default async function PostDetailPage({
   // Get the table configuration
   const tableConfig = TABLE_MAP[params.postType];
 
-  console.log('TableConfig:', tableConfig);
-
   if (!tableConfig) {
     return (
       <div className="container mx-auto max-w-4xl px-4 py-8">
@@ -229,7 +227,7 @@ export default async function PostDetailPage({
               <h2 className="text-xl font-bold">{typedPost.title}</h2>
               <p className="text-sm text-gray-500">
                 Posted by {typedPost.is_anonymous ? 'Anonymous' : `@${typedPost.profiles.username}`}{' '}
-                • {formatDistanceToNow(new Date(typedPost.created_at || Date.now()))} ago
+                • {format(new Date(typedPost.created_at || Date.now()), 'MMM d')}
               </p>
             </div>
           </div>

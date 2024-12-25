@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import Link from "next/link";
 import { LikeButton } from "@/components/like-button";
 import DOMPurify from 'isomorphic-dompurify';
@@ -49,7 +49,7 @@ export default async function BibleStudiesPage() {
                       <span className="font-medium">@{post.profiles.username}</span>
                     </span>
                     <span>•</span>
-                    <span>{formatDistanceToNow(new Date(post.created_at))} ago</span>
+                    <span>{format(new Date(post.created_at), 'MMM d')}</span>
                   </div>
                 </Link>
               </div>

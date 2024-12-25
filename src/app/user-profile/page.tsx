@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import Image from "next/image";
 import { formatDistanceToNow } from 'date-fns';
 import Link from "next/link";
+import DOMPurify from 'isomorphic-dompurify';
+import { format } from "date-fns";
 
 interface UserPost {
   id: string;
@@ -180,19 +182,23 @@ export default async function UserProfilePage() {
                   </div>
 
                   {/* Post Title */}
-                  <h3 className="text-lg font-medium text-gray-900">
+                  <Link href={`/${post.type}/${post.slug}`} className="text-lg font-medium text-gray-900 hover:text-blue-500 underline">
+                  <h3 >
                     {post.title}
                   </h3>
+                  </Link>
 
                   {/* Post Preview */}
-                  <p className="mt-2 line-clamp-2 text-sm text-gray-500">
-                    {post.content}
-                  </p>
+    
+                    <p className="mt-2 line-clamp-2 text-sm text-gray-500">
+                      {DOMPurify.sanitize(post.content, { ALLOWED_TAGS: [] })}
+                    </p>
+               
 
                   {/* Post Metadata */}
                   <div className="mt-4 flex items-center justify-between">
                     <div className="flex items-center space-x-2 text-sm text-gray-500">
-                      <span>{formatDistanceToNow(new Date(post.created_at))} ago</span>
+                      <span>{format(new Date(post.created_at), 'MMM d')}</span>
                       {post.likes_count !== undefined && (
                         <>
                           <span>•</span>

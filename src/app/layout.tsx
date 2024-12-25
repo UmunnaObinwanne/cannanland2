@@ -28,7 +28,7 @@ export default function RootLayout({
     >
       <head>
         <link rel="canonical" href={process.env.NEXT_PUBLIC_APP_URL} />
-        <meta name="google-site-verification" content="[your-verification-code]" />
+        <meta name="google-site-verification" content="BpG6TiWALZCQvUimoLjdpU3RhdEc5dJtvvVap1iV6Bs" />
         <meta name="theme-color" content="#ffffff" />
       </head>
       <body

@@ -3,15 +3,9 @@
 import { handleCreateResponse } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
-import { createClient } from "@/lib/supabase/client";
 import { LoadingSpinner } from './loading-spinner';
 
-interface ReplyFormProps {
-  postId: string;
-  postType: string;
-}
-
-export function ReplyForm({ postId, postType }: ReplyFormProps) {
+export function ReplyForm({ postId, postType }: { postId: string; postType: string }) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -49,7 +43,7 @@ export function ReplyForm({ postId, postType }: ReplyFormProps) {
 
   return (
     <div className="mt-8 rounded-lg border border-gray-200 bg-white p-4">
-      <div className="flex justify-between items-center mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold">Leave a Reply</h3>
         <button 
           onClick={() => setIsOpen(false)}
@@ -91,5 +85,3 @@ export function ReplyForm({ postId, postType }: ReplyFormProps) {
     </div>
   );
 }
-
-export default ReplyForm;

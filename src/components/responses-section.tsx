@@ -1,6 +1,6 @@
 'use client';
 
-import { formatDistanceToNow } from 'date-fns';
+import { format } from "date-fns";
 import Image from 'next/image';
 
 interface Response {
@@ -50,7 +50,7 @@ export function ResponsesSection({ responses }: ResponsesSectionProps) {
               <div>
                 <p className="font-medium">@{response.profiles.username}</p>
                 <p className="text-xs text-gray-500">
-                  {formatDistanceToNow(new Date(response.created_at))} ago
+                  {format(new Date(response.created_at), 'MMM d')}
                 </p>
               </div>
             </div>
