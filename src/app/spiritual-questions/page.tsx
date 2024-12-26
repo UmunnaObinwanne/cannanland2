@@ -16,7 +16,6 @@ export default async function SpiritualQuestionsPage() {
       profiles!spiritual_questions_profile_id_fkey(username, avatar_url),
       user_likes
     `)
-    .eq('moderation_status', 'approved')
     .order('created_at', { ascending: false });
 
   if (error) {

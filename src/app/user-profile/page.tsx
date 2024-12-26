@@ -6,8 +6,15 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import DOMPurify from 'isomorphic-dompurify';
 import { FaBible, FaPray, FaHeart, FaQuestion } from 'react-icons/fa';
+import { headers } from 'next/headers';
+
+// Add cache tags for revalidation
+export const revalidate = 0;
 
 export default async function UserProfilePage() {
+  // Force dynamic rendering
+  headers();
+  
   const supabase = await createClient();
   
   const { data: { user } } = await supabase.auth.getUser();
@@ -22,29 +29,35 @@ export default async function UserProfilePage() {
     .eq('id', user.id)
     .single();
 
-  // Fetch all post types
+  // Fetch all post types with proper profile_id filter
   const [bibleStudies, prayerRequests, testimonies, questions] = await Promise.all([
     supabase
       .from('bible_studies')
-      .select('*, profiles(username)')
-      .eq('user_id', user.id)
+      .select('*, profiles!bible_studies_profile_id_fkey(username)')
+      .eq('profile_id', user.id)
       .order('created_at', { ascending: false }),
     supabase
       .from('prayer_requests')
-      .select('*, profiles(username)')
-      .eq('user_id', user.id)
+      .select('*, profiles!prayer_requests_profile_id_fkey(username)')
+      .eq('profile_id', user.id)
       .order('created_at', { ascending: false }),
     supabase
       .from('testimonies')
-      .select('*, profiles(username)')
-      .eq('user_id', user.id)
+      .select('*, profiles!testimonies_profile_id_fkey(username)')
+      .eq('profile_id', user.id)
       .order('created_at', { ascending: false }),
     supabase
       .from('spiritual_questions')
-      .select('*, profiles(username)')
-      .eq('user_id', user.id)
+      .select('*, profiles!spiritual_questions_profile_id_fkey(username)')
+      .eq('profile_id', user.id)
       .order('created_at', { ascending: false }),
   ]);
+
+  // Log the results to debug
+  console.log('Bible Studies:', bibleStudies);
+  console.log('Prayer Requests:', prayerRequests);
+  console.log('Testimonies:', testimonies);
+  console.log('Questions:', questions);
 
   // Combine and sort all posts
   const allPosts = [
@@ -183,7 +196,7 @@ export default async function UserProfilePage() {
                         </span>
                         <h3 className="font-semibold text-gray-900">{post.title}</h3>
                       </div>
-                      {user.id === post.user_id && (
+                      {profile?.id === post.user_id && (
                         <EditPostButton
                           postType={post.type}
                           postId={post.id}

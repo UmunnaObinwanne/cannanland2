@@ -95,6 +95,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
 
       toast.success('Post updated successfully');
       router.push('/user-profile');
+      router.refresh();
     } catch (error) {
       console.error('Error:', error);
       toast.error('Failed to update post');
