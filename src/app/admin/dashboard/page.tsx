@@ -83,11 +83,11 @@ export default function AdminDashboard() {
   }, [loadPosts]);
 
   useEffect(() => {
-    async function checkAdminStatus() {
+    const checkAuth = async () => {
       const supabase = createClient();
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       
-      if (!user || userError) {
+      if (!user) {
         router.push('/sign-in');
         return;
       }
@@ -100,12 +100,11 @@ export default function AdminDashboard() {
 
       if (!profile?.is_admin) {
         router.push('/');
-        return;
       }
-    }
+    };
 
-    checkAdminStatus();
-  }, [filter, loadPosts, router]);
+    checkAuth();
+  }, [router]);
 
   async function handleStatusUpdate(post: Post, newStatus: 'approved' | 'rejected' | 'pending') {
     const supabase = createClient();

@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 
 interface HeaderClientProps {
   user: User | null;
+  isAdmin: boolean;
 }
 
 // Separate navigation link components for better performance
@@ -36,7 +37,7 @@ const NavLink = memo(({ href, icon: Icon, children }: {
 
 NavLink.displayName = 'NavLink';
 
-export function HeaderClient({ user }: HeaderClientProps) {
+export function HeaderClient({ user, isAdmin }: HeaderClientProps) {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -158,13 +159,13 @@ export function HeaderClient({ user }: HeaderClientProps) {
           <Logo />
           {/* Desktop Auth Section */}
           <div className="hidden md:flex items-center gap-4">
-            {profile?.is_admin && (
+            {isAdmin && (
               <Link
                 href="/admin/dashboard"
-                className="flex items-center gap-2 rounded-lg bg-purple-100 px-3 py-1.5 text-sm font-medium text-purple-700 transition-colors hover:bg-purple-200"
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
               >
                 <FaChartLine className="text-sm" />
-                <span>Dashboard</span>
+                <span>Admin Dashboard</span>
               </Link>
             )}
             {renderAuthSection()}
@@ -184,10 +185,10 @@ export function HeaderClient({ user }: HeaderClientProps) {
       {isMenuOpen && (
         <div className="md:hidden border-b border-gray-200">
           <div className="container py-4">
-            {profile?.is_admin && (
+            {isAdmin && (
               <Link
                 href="/admin/dashboard"
-                className="mb-4 flex items-center gap-2 rounded-lg bg-purple-100 px-3 py-2 text-sm font-medium text-purple-700 transition-colors hover:bg-purple-200"
+                className="mb-4 flex items-center gap-2 text-gray-600 hover:text-gray-900"
               >
                 <FaChartLine className="text-sm" />
                 <span>Admin Dashboard</span>
