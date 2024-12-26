@@ -7,9 +7,8 @@ import DOMPurify from 'isomorphic-dompurify';
 import { useRouter } from 'next/navigation';
 import { FaTrash } from 'react-icons/fa';
 import { ConfirmDialog } from '@/components/confirm-dialog';
-import { toast } from 'sonner';
+import { useToast } from '@/components/toast';
 import Link from 'next/link';
-import { checkAdminStatus } from '@/app/actions';
 import { formatPostType, slugifyPostType } from '@/utils/post-types';
 
 type Post = {
@@ -33,114 +32,85 @@ export default function AdminDashboard() {
   const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set());
   const [deletePost, setDeletePost] = useState<Post | null>(null);
   const router = useRouter();
-
-  useEffect(() => {
-    // Verify admin status on component mount
-    const verifyAdmin = async () => {
-      try {
-        await checkAdminStatus();
-      } catch (error) {
-        console.error('Admin verification failed:', error);
-        router.push('/');
-      }
-    };
-    verifyAdmin();
-  }, [router]);
+  const { showToast, ToastContainer } = useToast();
 
   const loadPosts = useCallback(async () => {
     setIsLoading(true);
     const supabase = createClient();
 
-    try {
-      // Fetch posts from all tables with moderation status
-      const [bibleStudies, prayerRequests, testimonies, questions] = await Promise.all([
-        supabase
-          .from('bible_studies')
-          .select(`
-            id,
-            title,
-            content,
-            created_at,
-            moderation_status,
-            profiles (
-              username,
-              email
-            )
-          `)
-          .eq('moderation_status', filter)
-          .order('created_at', { ascending: false }),
-        supabase
-          .from('prayer_requests')
-          .select(`
-            id,
-            title,
-            content,
-            created_at,
-            moderation_status,
-            profiles (
-              username,
-              email
-            )
-          `)
-          .eq('moderation_status', filter)
-          .order('created_at', { ascending: false }),
-        supabase
-          .from('testimonies')
-          .select(`
-            id,
-            title,
-            content,
-            created_at,
-            moderation_status,
-            profiles (
-              username,
-              email
-            )
-          `)
-          .eq('moderation_status', filter)
-          .order('created_at', { ascending: false }),
-        supabase
-          .from('spiritual_questions')
-          .select(`
-            id,
-            title,
-            content,
-            created_at,
-            moderation_status,
-            profiles (
-              username,
-              email
-            )
-          `)
-          .eq('moderation_status', filter)
-          .order('created_at', { ascending: false }),
-      ]);
+    console.log('Fetching posts with status:', filter);
 
-      const allPosts = [
-        ...(bibleStudies.data || []).map(post => ({ ...post, type: 'bible_study' })),
-        ...(prayerRequests.data || []).map(post => ({ ...post, type: 'prayer_request' })),
-        ...(testimonies.data || []).map(post => ({ ...post, type: 'testimony' })),
-        ...(questions.data || []).map(post => ({ ...post, type: 'spiritual_question' }))
-      ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    const [bibleStudies, prayerRequests, testimonies, spiritualQuestions] = await Promise.all([
+      supabase
+        .from('bible_studies')
+        .select('*, profiles(username, email)')
+        .eq('moderation_status', filter)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('prayer_requests')
+        .select(`
+          *,
+          profiles!prayer_requests_profile_id_fkey(username, email)
+        `)
+        .eq('moderation_status', filter)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('testimonies')
+        .select('*, profiles(username, email)')
+        .eq('moderation_status', filter)
+        .order('created_at', { ascending: false }), 
+      supabase
+        .from('spiritual_questions')
+        .select('*, profiles(username, email)')
+        .eq('moderation_status', filter)
+        .order('created_at', { ascending: false }),
+    ]);
 
-      setPosts(allPosts);
-    } catch (error) {
-      console.error('Error loading posts:', error);
-      toast.error('Failed to load posts');
-    } finally {
-      setIsLoading(false);
-    }
+
+    const allPosts = [
+      ...(bibleStudies.data || []).map(post => ({ ...post, type: 'bible_study' })),
+      ...(prayerRequests.data || []).map(post => ({ ...post, type: 'prayer_request' })),
+      ...(testimonies.data || []).map(post => ({ ...post, type: 'testimony' })), 
+      ...(spiritualQuestions.data || []).map(post => ({ ...post, type: 'spiritual_question' }))
+    ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    setPosts(allPosts);
+    setIsLoading(false);
   }, [filter]);
 
   useEffect(() => {
     loadPosts();
   }, [loadPosts]);
 
+  useEffect(() => {
+    async function checkAdminStatus() {
+      const supabase = createClient();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (!user || userError) {
+        router.push('/sign-in');
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single();
+
+      if (!profile?.is_admin) {
+        router.push('/');
+        return;
+      }
+    }
+
+    checkAdminStatus();
+  }, [filter, loadPosts, router]);
+
   async function handleStatusUpdate(post: Post, newStatus: 'approved' | 'rejected' | 'pending') {
     const supabase = createClient();
     let table: string;
 
-    // Map the post type to the corresponding table
     switch (post.type) {
       case 'bible_study':
         table = 'bible_studies';
@@ -151,32 +121,27 @@ export default function AdminDashboard() {
       case 'testimony':
         table = 'testimonies';
         break;
-      case 'spiritual_question':
+          case 'spiritual_question':
         table = 'spiritual_questions';
         break;
       default:
-        console.error(`Unknown post type: ${post.type}`);
-        return; // Exit if the post type is invalid
+        return;
     }
 
-    // Update the post's moderation status in the appropriate table
     const { error } = await supabase
       .from(table)
       .update({ moderation_status: newStatus })
       .eq('id', post.id);
 
-    // Handle response
     if (!error) {
-      await loadPosts(); // Reload posts after successful update
-      toast.success(
+      await loadPosts();
+      showToast(
         `Post ${newStatus === 'approved' ? 'approved' : 'rejected'} successfully`,
-        {
-          description: `Post ${newStatus === 'approved' ? 'approved' : 'rejected'} successfully`,
-        }
+        'success'
       );
     } else {
       console.error('Error updating status:', error);
-      toast.error('Failed to update post status');
+      showToast('Failed to update post status', 'error');
     }
   }
 
@@ -206,7 +171,7 @@ export default function AdminDashboard() {
       case 'testimony':
         table = 'testimonies';
         break;
-      case 'spiritual_question':
+        case 'spiritual_question':
         table = 'spiritual_questions';
         break;
       default:
@@ -220,10 +185,10 @@ export default function AdminDashboard() {
 
     if (!error) {
       await loadPosts();
-      toast.success('Post deleted successfully');
+      showToast('Post deleted successfully', 'success');
     } else {
       console.error('Error deleting post:', error);
-      toast.error('Failed to delete post');
+      showToast('Failed to delete post', 'error');
     }
     setDeletePost(null);
   }
@@ -353,6 +318,8 @@ export default function AdminDashboard() {
         title="Delete Post"
         message="Are you sure you want to delete this post? This action cannot be undone."
       />
+
+      <ToastContainer />
     </div>
   );
 } 
