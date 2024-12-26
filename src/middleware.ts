@@ -69,6 +69,12 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  if (request.nextUrl.pathname.match(/\/[^\/]+\/[^\/]+\/edit/)) {
+    if (!session) {
+      return NextResponse.redirect(new URL('/sign-in', request.url))
+    }
+  }
+
   return response
 }
 
@@ -78,6 +84,7 @@ export const config = {
     '/share-prayer-request',
     '/share-bible-study',
     '/share-testimony',
-    '/share-spiritual-question'
+    '/share-spiritual-question',
+    '/:type/:slug/edit'
   ],
 } 

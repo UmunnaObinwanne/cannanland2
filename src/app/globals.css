@@ -58,7 +58,8 @@ a {
   @apply text-blue-500 underline;
 }
 
-a, h1, h2, h3, h4, h5, h6, {
+a {
   color: blue; /* Set text color to blue */
   text-decoration: underline; /* Add underline */
 }
+
