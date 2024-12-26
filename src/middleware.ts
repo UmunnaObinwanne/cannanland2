@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server";
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
@@ -35,33 +34,17 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { user }, error } = await supabase.auth.getUser()
 
-  // Protect share routes
-  if (
-    request.nextUrl.pathname.startsWith('/share-prayer-request') ||
-    request.nextUrl.pathname.startsWith('/share-bible-study') ||
-    request.nextUrl.pathname.startsWith('/share-testimony') ||
-    request.nextUrl.pathname.startsWith('/share-spiritual-question')
-  ) {
-    if (!session) {
-      // Store the original URL they were trying to visit
-      const redirectUrl = new URL('/sign-in', request.url)
-      redirectUrl.searchParams.set('redirect', request.nextUrl.pathname)
-      return NextResponse.redirect(redirectUrl)
-    }
+  if (error || !user) {
+    return NextResponse.redirect(new URL('/sign-in', request.url))
   }
 
-  // Continue with existing admin protection
   if (request.nextUrl.pathname.startsWith('/admin')) {
-    if (!session) {
-      return NextResponse.redirect(new URL('/sign-in', request.url))
-    }
-
     const { data: profile } = await supabase
       .from('profiles')
       .select('is_admin')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .single()
 
     if (!profile?.is_admin) {
@@ -69,22 +52,9 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  if (request.nextUrl.pathname.match(/\/[^\/]+\/[^\/]+\/edit/)) {
-    if (!session) {
-      return NextResponse.redirect(new URL('/sign-in', request.url))
-    }
-  }
-
   return response
 }
 
 export const config = {
-  matcher: [
-    '/admin/:path*',
-    '/share-prayer-request',
-    '/share-bible-study',
-    '/share-testimony',
-    '/share-spiritual-question',
-    '/:type/:slug/edit'
-  ],
+  matcher: ['/admin/:path*']
 } 

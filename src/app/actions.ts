@@ -304,3 +304,24 @@ export async function handleCreateResponse(formData: FormData) {
   revalidatePath(`/${formData.get('postType')}/${formData.get('postId')}`);
   return { success: true };
 }
+
+export async function checkAdminStatus() {
+  const supabase = await createClient();
+  
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    redirect('/sign-in');
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', user.id)
+    .single();
+
+  if (profileError || !profile?.is_admin) {
+    redirect('/');
+  }
+
+  return { user, isAdmin: profile.is_admin };
+}
