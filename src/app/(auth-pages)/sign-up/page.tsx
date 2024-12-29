@@ -13,7 +13,10 @@ import { useEffect, useState } from 'react';
 export default function Signup({
   searchParams,
 }: {
-  searchParams: { error?: string };
+  searchParams: { error?: string
+    message?: string;
+    redirect?: string;
+   };
 }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
@@ -34,6 +37,7 @@ export default function Signup({
     return null; // or a loading spinner
   }
 
+  /*
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
@@ -65,6 +69,39 @@ export default function Signup({
       setIsLoading(false);
     }
   };
+  */
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setIsLoading(true);
+
+  const formData = new FormData(e.currentTarget);
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+
+  try {
+    const supabase = createClient();
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/sign-in?message=Email verified successfully`,
+      },
+    });
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    toast.success('Check your email to confirm your account');
+    router.push('/sign-in?message=Please check your email to confirm your account');
+  } catch (error) {
+    toast.error('An error occurred while signing up');
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <div className="flex items-center justify-center bg-gray-50 mt-20 py-10">
@@ -112,10 +149,20 @@ export default function Signup({
             </div>
 
             {/* Conditional FormMessage */}
-           {searchParams && <p className="text-red-900">{searchParams.error}</p>}
+          {/* Conditional FormMessage */}
+{searchParams?.error ? (
+  <p className="text-center p-2 text-red-600 bg-red-50 rounded">{searchParams.error}</p>
+) : searchParams?.message ? (
+  <div className="text-center space-y-2">
+    <p className="p-2 text-emerald-600 bg-emerald-50 rounded">{searchParams.message}</p>
+    <p className="text-sm text-gray-600">
+      Please check your email for a verification link to complete your registration.
+    </p>
+  </div>
+) : null}
 
             {/* Form */}
-            <form className="space-y-6" action={signUpAction}>
+            <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="space-y-4">
                 {/* Email */}
                 <div>
