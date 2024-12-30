@@ -4,22 +4,35 @@ import { handleCreateResponse } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { LoadingSpinner } from './loading-spinner';
+import dynamic from 'next/dynamic';
+import { Button } from './ui/button';
+
+// Import Quill dynamically to avoid SSR issues
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+import 'react-quill/dist/quill.snow.css';
 
 export function ReplyForm({ postId, postType }: { postId: string; postType: string }) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [content, setContent] = useState('');
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsSubmitting(true);
-    const formData = new FormData(e.currentTarget);
 
     try {
+      // Create FormData and append the rich text content
+      const formData = new FormData();
+      formData.append('postId', postId);
+      formData.append('postType', postType);
+      formData.append('content', content);
+
       const result = await handleCreateResponse(formData);
       if (result?.success) {
         formRef.current?.reset();
+        setContent('');
         setIsOpen(false);
         router.refresh();
       }
@@ -32,54 +45,78 @@ export function ReplyForm({ postId, postType }: { postId: string; postType: stri
 
   if (!isOpen) {
     return (
-      <button
+      <Button
         onClick={() => setIsOpen(true)}
-        className="mt-8 flex w-full items-center justify-center rounded-lg border border-gray-200 p-4 text-gray-500 hover:bg-gray-50"
+        variant="outline"
+        className="mt-8 w-full text-muted-foreground"
       >
         Write a response...
-      </button>
+      </Button>
     );
   }
 
   return (
-    <div className="mt-8 rounded-lg border border-gray-200 bg-white p-4">
+    <div className="mt-8 rounded-lg border bg-card p-4">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold">Leave a Reply</h3>
-        <button 
+        <Button 
           onClick={() => setIsOpen(false)}
-          className="text-gray-500 hover:text-gray-700"
+          variant="ghost"
           disabled={isSubmitting}
         >
           Cancel
-        </button>
+        </Button>
       </div>
       <form ref={formRef} onSubmit={handleSubmit}>
         <input type="hidden" name="postId" value={postId} />
         <input type="hidden" name="postType" value={postType} />
-        <textarea
-          name="content"
-          className="w-full rounded-md border border-gray-200 p-3"
-          rows={4}
-          placeholder="Write your reply..."
-          required
-          autoFocus
-          disabled={isSubmitting}
-        />
+        
+        <div className="prose prose-sm min-h-[300px] mb-4">
+          <ReactQuill
+            theme="snow"
+            value={content}
+            onChange={setContent}
+            placeholder="Write your reply..."
+            modules={{
+              toolbar: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                ['blockquote', 'code-block'],
+                ['link'],
+                ['clean']
+              ]
+            }}
+            formats={[
+              'header',
+              'bold', 'italic', 'underline',
+              'list', 'bullet',
+              'blockquote', 'code-block',
+              'link'
+            ]}
+            className="min-h-[200px] h-[300px] mb-8"
+            style={{
+              height: '200px',
+              fontSize: '16px'
+            }}
+          />
+        </div>
+
         <div className="mt-4 flex justify-end">
-          <button 
+          <Button 
             type="submit" 
-            disabled={isSubmitting}
-            className="flex items-center gap-2 rounded-md bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 disabled:opacity-50"
+            disabled={isSubmitting || !content.trim()}
+            className="flex items-center gap-2"
           >
             {isSubmitting ? (
               <>
                 <LoadingSpinner className="h-4 w-4" />
-                Posting...
+                <span>Posting...</span>
               </>
             ) : (
               'Post Reply'
             )}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

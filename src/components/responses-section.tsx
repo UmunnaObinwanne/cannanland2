@@ -2,6 +2,7 @@
 
 import { format } from "date-fns";
 import Image from 'next/image';
+import { sanitizeHtml } from '@/lib/utils';
 
 interface Response {
   id: string;
@@ -54,7 +55,12 @@ export function ResponsesSection({ responses }: ResponsesSectionProps) {
                 </p>
               </div>
             </div>
-            <p className="whitespace-pre-wrap text-gray-700">{response.content}</p>
+            <div 
+              className="prose prose-sm text-gray-700"
+              dangerouslySetInnerHTML={{
+                __html: sanitizeHtml(response.content)
+              }}
+            />
           </div>
         ))}
       </div>

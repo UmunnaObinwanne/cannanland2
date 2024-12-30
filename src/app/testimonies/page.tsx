@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import { LikeButton } from "@/components/like-button";
-import DOMPurify from 'isomorphic-dompurify';
+import { sanitizeHtml } from '@/lib/utils';
 import { FaHeart, FaComments } from 'react-icons/fa';
 
 export default async function TestimoniesPage() {
@@ -60,7 +60,7 @@ export default async function TestimoniesPage() {
                 <div 
                   className="prose prose-sm mb-4 line-clamp-2 text-gray-600"
                   dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(post.content)
+                    __html: sanitizeHtml(post.content)
                   }}
                 />
 

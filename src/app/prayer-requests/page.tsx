@@ -4,6 +4,7 @@ import Link from "next/link";
 import { LikeButton } from "@/components/like-button";
 import DOMPurify from 'isomorphic-dompurify';
 import { FaPrayingHands, FaComments } from 'react-icons/fa';
+import { sanitizeHtml } from '@/lib/utils';
 
 export default async function PrayerRequestsPage() {
   const supabase = await createClient();
@@ -95,7 +96,7 @@ export default async function PrayerRequestsPage() {
                 <div 
                   className="prose prose-sm mb-4 line-clamp-2 text-gray-600"
                   dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(post.content)
+                    __html: sanitizeHtml(post.content)
                   }}
                 />
 
