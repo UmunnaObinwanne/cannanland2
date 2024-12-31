@@ -108,7 +108,7 @@ export default async function PrayerRequestsPage() {
                       <span>Prayer Request</span>
                     </span>
                     <LikeButton
-                      postId={post.id}
+                      postId={post.slug}
                       postType="prayer_request"
                       initialLikesCount={post.likes_count || 0}
                       initialIsLiked={post.user_likes?.includes(user?.id)}

@@ -44,7 +44,7 @@ interface Post {
 
 interface TableConfig {
   table: string;
-  type: string;
+type: 'bible_study' | 'prayer_request' | 'testimony' | 'spiritual_question';  
   responseTable: string;
 }
 
@@ -137,6 +137,7 @@ export default async function PostDetailPage({
   }
 
   const { table, type, responseTable } = tableConfig;
+  console.log('type from params', type)
 
   // Log the query details
   console.log('Query details:', {
@@ -146,30 +147,34 @@ export default async function PostDetailPage({
     query: `
       *,
       profiles!${table}_profile_id_fkey(username, avatar_url),
-      responses:${responseTable}(
-        id,
-        content,
-        created_at,
-        profiles(username, avatar_url)
-      )
-    `
+  responses:${responseTable}!${responseTable}_${type}_id_fkey(
+   id,
+   content, 
+   created_at,
+   is_ai,
+   username,
+   profiles(username, avatar_url)
+ )
+`
   });
 
+
   // Fetch the post with its author's profile
-  const { data: post, error } = await supabase
-    .from(table)
-    .select(`
-      *,
-      profiles!${table}_profile_id_fkey(username, avatar_url),
-      responses:${responseTable}(
-        id,
-        content,
-        created_at,
-        profiles(username, avatar_url)
-      )
-    `)
-    .eq('slug', params.slug)
-    .single();
+const { data: post, error } = await supabase
+ .from(table)
+ .select(`
+   *,
+   profiles!${table}_profile_id_fkey(username, avatar_url),
+   responses:${responseTable}!${responseTable}_${type}_id_fkey(
+     id,
+     content,
+     created_at,
+     is_ai,
+     profiles(username, avatar_url)
+   )
+ `)
+ .eq('slug', params.slug)
+ .single();
 
   console.log('Query result:', { post, error });
 
@@ -232,7 +237,7 @@ export default async function PostDetailPage({
             </div>
           </div>
           <LikeButton
-            postId={typedPost.id}
+            postId={typedPost.slug}
             postType={type}
             initialLikesCount={typedPost.likes_count || 0}
             initialIsLiked={typedPost.user_likes?.includes(user?.id || '')}

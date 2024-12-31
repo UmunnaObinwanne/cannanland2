@@ -10,6 +10,7 @@ export function getTableName(postType: string): string {
       return 'testimonies';
     case 'spiritual-question':
       return 'spiritual_questions';
+      
     // Handle the underscore versions as well
     case 'bible_study':
       return 'bible_studies';

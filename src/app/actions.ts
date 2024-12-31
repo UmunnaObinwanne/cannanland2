@@ -5,6 +5,8 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from 'next/cache';
 
+import { PostType, getTableName, formatPostType } from "@/utils/post-types";
+
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
@@ -138,87 +140,54 @@ export async function getUserProfile() {
   return profile;
 }
 
-export async function toggleLikeAction(postId: string, postType: string): Promise<{
-  success: boolean;
-  hasLiked?: boolean;
-  newCount?: number;
-  error?: string;
-  message?: string;
-}> {
-  try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      return { error: "Must be logged in to like posts", success: false };
-    }
+export async function toggleLikeAction(slug: string, postType: PostType) {
+ try {
+   const supabase = await createClient();
+   const { data: { user } } = await supabase.auth.getUser();
+   
+   if (!user) return { error: "Must be logged in", success: false };
 
-    // Determine the correct table name
-    let table: string;
-    switch (postType) {
-      case 'bible_study':
-        table = 'bible_studies';
-        break;
-      case 'prayer_request':
-        table = 'prayer_requests';
-        break;
-      case 'testimony':
-        table = 'testimonies';
-        break;
-      default:
-        return { error: "Invalid post type", success: false };
-    }
+   const table = getTableName(postType);
 
-    // Get the current post with explicit column selection
-    const { data: post, error: fetchError } = await supabase
-      .from(table)
-      .select('id, likes_count, user_likes')
-      .eq('id', postId)
-      .single();
+   console.log('this is the table I want to update', table)
 
-    if (fetchError) {
-      console.error('Fetch error:', fetchError);
-      return { error: "Failed to fetch post", success: false };
-    }
+   const { data: post, error: fetchError } = await supabase
+     .from(table)
+     .select('id, likes_count, user_likes, slug')
+     .eq('slug', slug)
+     .single();
 
-    // Initialize arrays and counts
-    const userLikes = Array.isArray(post.user_likes) ? post.user_likes : [];
-    const currentCount = typeof post.likes_count === 'number' ? post.likes_count : 0;
-    const hasLiked = userLikes.includes(user.id);
+   if (fetchError) return { error: "Failed to fetch post", success: false };
 
-    // Prepare the update
-    const updates = {
-      likes_count: hasLiked ? currentCount - 1 : currentCount + 1,
-      user_likes: hasLiked 
-        ? userLikes.filter(id => id !== user.id)
-        : [...userLikes, user.id]
-    };
+   const userLikes = Array.isArray(post.user_likes) ? post.user_likes : [];
+   const hasLiked = userLikes.includes(user.id);
+   
+   const updates = {
+     likes_count: hasLiked ? post.likes_count - 1 : post.likes_count + 1,
+     user_likes: hasLiked ? userLikes.filter(id => id !== user.id) : [...userLikes, user.id]
+   };
 
-    // Perform the update with better error handling
-    const { error: updateError } = await supabase
-      .from(table)
-      .update(updates)
-      .eq('id', postId)
-      .select()
-      .single();
+   console.log('Preparing update:', { updates, postId: post.id });
 
-    if (updateError) {
-      console.error('Update error:', updateError);
-      return { error: "Failed to update like", success: false };
-    }
+   const { data: updateData,  error: updateError } = await supabase
+     .from(table)
+     .update(updates)
+     .eq('id', post.id)
+     .select()
+     .single();
 
-    return {
-      success: true,
-      hasLiked: !hasLiked,
-      newCount: updates.likes_count,
-      message: hasLiked ? "Like removed" : "Like added"
-    };
+console.log('Update result:', { updateData, updateError });
 
-  } catch (error) {
-    console.error("Error in toggleLikeAction:", error);
-    return { error: "Failed to process like action", success: false };
-  }
+   return {
+     success: true,
+     hasLiked: !hasLiked,
+     newCount: updates.likes_count
+   };
+ } catch (error) {
+   return { error: "Failed to process like action", success: false };
+ }
 }
+
 
 // Define table mapping first
 const tableMap = {

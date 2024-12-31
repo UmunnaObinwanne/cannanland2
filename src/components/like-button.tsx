@@ -4,12 +4,11 @@ import { FaHeart } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { toggleLikeAction } from "@/app/actions";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-//import { useToast } from "@/components/ui/use-toast";
+import { PostType,  } from "@/utils/post-types";
 
 interface LikeButtonProps {
-  postId: string;
-  postType: string;
+  postId: string;  // This now expects a slug instead of ID
+  postType: PostType
   initialLikesCount: number;
   initialIsLiked: boolean;
   isLoggedIn: boolean;
@@ -24,7 +23,7 @@ interface ToggleLikeResult {
 }
 
 export function LikeButton({ 
-  postId, 
+  postId,  // This is now the slug
   postType, 
   initialLikesCount, 
   initialIsLiked,
@@ -34,7 +33,8 @@ export function LikeButton({
   const [likesCount, setLikesCount] = useState(initialLikesCount);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  //const toast = useToast();
+
+  console.log('information from like button', postId, postType)
 
   useEffect(() => {
     setIsLiked(initialIsLiked);
@@ -55,12 +55,14 @@ export function LikeButton({
     setIsLoading(true);
 
     try {
+      // postId is now a slug
       const result = await toggleLikeAction(postId, postType) as ToggleLikeResult;
+      console.log('result from like button', result)
       
       if (result.success && typeof result.hasLiked === 'boolean' && typeof result.newCount === 'number') {
         setIsLiked(result.hasLiked);
         setLikesCount(result.newCount);
-        console.log('Like updated:', { hasLiked: result.hasLiked, count: result.newCount });
+        router.refresh(); // Added to refresh the page data
       } else {
         throw new Error(result.error || 'Failed to update like');
       }

@@ -70,7 +70,7 @@ export default async function BibleStudiesPage() {
                       <span>Bible Study</span>
                     </span>
                     <LikeButton
-                      postId={post.id}
+                      postId={post.slug}
                       postType="bible_study"
                       initialLikesCount={post.likes_count || 0}
                       initialIsLiked={post.user_likes?.includes(user?.id)}

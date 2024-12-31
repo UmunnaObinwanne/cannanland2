@@ -5,9 +5,11 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { LoadingModal } from '@/components/loading-modal';
+import { generateResponse } from '@/utils/openai';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 import 'react-quill/dist/quill.snow.css';
+
 
 export default function ShareSpiritualQuestion() {
   const [title, setTitle] = useState('');
@@ -29,7 +31,7 @@ export default function ShareSpiritualQuestion() {
         return;
       }
 
-      const { error } = await supabase
+      const { data: request, error } = await supabase
         .from('spiritual_questions')
         .insert({
           title,
@@ -37,9 +39,23 @@ export default function ShareSpiritualQuestion() {
           is_anonymous: isAnonymous,
           user_id: user.id,
           profile_id: user.id,
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
+
+            // After the first insert
+const aiResponse = await generateResponse(content, 'spiritual_question');
+await supabase
+ .from('spiritual_question_responses')
+ .insert({
+   spiritual_question_id: request.id,
+   content: aiResponse,
+   is_ai: true,
+   username: 'AI Assistant', 
+   profile_id: null
+ });
 
       await router.push('/spiritual-questions');
       router.refresh();

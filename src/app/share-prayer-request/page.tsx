@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { LoadingModal } from '@/components/loading-modal';
+import { generateResponse } from '@/utils/openai';
 
 // Import Quill dynamically to avoid SSR issues
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
@@ -30,19 +31,32 @@ export default function SharePrayerRequest() {
         return;
       }
 
-      const { error } = await supabase
-        .from('prayer_requests')
-        .insert({
-          title,
-          content,
-          is_anonymous: isAnonymous,
-          user_id: user.id,
-          profile_id: user.id,
-          moderation_status: 'pending'
-        });
+      const { data: request, error } = await supabase
+  .from('prayer_requests')
+  .insert({
+    title,
+    content,
+    is_anonymous: isAnonymous,
+    user_id: user.id,
+    profile_id: user.id,
+    moderation_status: 'pending'
+  })
+  .select()
+  .single();
 
-      if (error) throw error;
+if (error) throw error;
 
+// Generate & insert AI response
+const aiResponse = await generateResponse(content, 'prayer_request');
+await supabase
+  .from('prayer_responses')
+  .insert({
+    prayer_request_id: request.id,
+    profile_id: user.id,
+    content: aiResponse,
+    is_ai: true
+  });
+      
       await router.push('/prayer-requests');
       router.refresh();
     } catch (error) {

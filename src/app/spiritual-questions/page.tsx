@@ -17,6 +17,8 @@ export default async function SpiritualQuestionsPage() {
       user_likes
     `)
     .order('created_at', { ascending: false });
+  
+
 
   if (error) {
     console.error('Error fetching spiritual questions:', error);
@@ -71,7 +73,7 @@ export default async function SpiritualQuestionsPage() {
                       <span>Spiritual Question</span>
                     </span>
                     <LikeButton
-                      postId={post.id}
+                      postId={post.slug}
                       postType="spiritual_question"
                       initialLikesCount={post.likes_count || 0}
                       initialIsLiked={post.user_likes?.includes(user?.id)}

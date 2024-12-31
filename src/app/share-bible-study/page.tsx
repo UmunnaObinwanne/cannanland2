@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { LoadingModal } from '@/components/loading-modal';
+import { generateResponse } from '@/utils/openai';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 import 'react-quill/dist/quill.snow.css';
@@ -15,6 +16,9 @@ export default function ShareBibleStudy() {
   const [scriptureReference, setScriptureReference] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+
+
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +33,7 @@ export default function ShareBibleStudy() {
         return;
       }
 
-      const { error } = await supabase
+      const { data: request, error } = await supabase
         .from('bible_studies')
         .insert({
           title,
@@ -37,9 +41,23 @@ export default function ShareBibleStudy() {
           scripture_reference: scriptureReference,
           user_id: user.id,
           profile_id: user.id,
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // After the first insert
+const aiResponse = await generateResponse(content, 'bible_study');
+await supabase
+ .from('biblestudy_responses')
+ .insert({
+   bible_study_id: request.id,
+   content: aiResponse,
+   is_ai: true,
+   username: 'AI Assistant', 
+   profile_id: null
+ });
 
       await router.push('/bible-studies');
       router.refresh();

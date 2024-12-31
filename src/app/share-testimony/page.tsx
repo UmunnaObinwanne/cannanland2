@@ -5,9 +5,20 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { LoadingModal } from '@/components/loading-modal';
+import { generateResponse } from '@/utils/openai';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 import 'react-quill/dist/quill.snow.css';
+
+const aiUsernames = [
+  'Rev Wilson',
+  'Pastor Tobi',
+  'Rev Fernand',
+  'Cardinal Augusto',
+  'Pastor James'
+];
+
+const randomUsername = aiUsernames[Math.floor(Math.random() * aiUsernames.length)];
 
 export default function ShareTestimony() {
   const [title, setTitle] = useState('');
@@ -29,7 +40,7 @@ export default function ShareTestimony() {
         return;
       }
 
-      const { error } = await supabase
+      const {data: request, error } = await supabase
         .from('testimonies')
         .insert({
           title,
@@ -37,12 +48,28 @@ export default function ShareTestimony() {
           is_anonymous: isAnonymous,
           user_id: user.id,
           profile_id: user.id,
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
+      //Generate AI Response
+      const aiResponse = await generateResponse(content, 'testimony');
+await supabase
+ .from('testimony_responses')
+ .insert({
+   testimony_id: request.id,
+   content: aiResponse,
+   is_ai: true,
+   username: 'One of your Forum Pastors', 
+   profile_id: null
+ });
+
       await router.push('/testimonies');
       router.refresh();
+
+
     } catch (error) {
       console.error('Error:', error);
       alert('Failed to submit. Please try again.');

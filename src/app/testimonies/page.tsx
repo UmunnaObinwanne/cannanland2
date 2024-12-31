@@ -71,7 +71,7 @@ export default async function TestimoniesPage() {
                       <span>Testimony</span>
                     </span>
                     <LikeButton
-                      postId={post.id}
+                      postId={post.slug}
                       postType="testimony"
                       initialLikesCount={post.likes_count || 0}
                       initialIsLiked={post.user_likes?.includes(user?.id)}
