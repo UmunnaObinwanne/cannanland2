@@ -68,7 +68,7 @@ console.log(responses)
                )}
              </div>
              <div>
-               <p className="font-medium font-bold">
+               <p className=" font-bold">
                  {response.is_ai ? 
                    response.username || randomUsername : 
                    `@${response.profiles?.username || 'Anonymous'}`}
