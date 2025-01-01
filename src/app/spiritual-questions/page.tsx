@@ -4,6 +4,9 @@ import Link from "next/link";
 import { LikeButton } from "@/components/like-button";
 import { sanitizeHtml } from '@/lib/utils';
 import { FaQuestion, FaComments } from 'react-icons/fa';
+import { getPageConfig } from "@/utils/post-types";
+
+
 
 export default async function SpiritualQuestionsPage() {
   const supabase = await createClient();
@@ -18,7 +21,8 @@ export default async function SpiritualQuestionsPage() {
     `)
     .order('created_at', { ascending: false });
   
-
+    const figuredPost = {posts}
+    console.log(figuredPost)
 
   if (error) {
     console.error('Error fetching spiritual questions:', error);
@@ -31,6 +35,7 @@ export default async function SpiritualQuestionsPage() {
         <h1 className="mb-4 sm:mb-8 text-2xl font-bold">Spiritual Questions</h1>
         <div className="space-y-8">
           {posts?.map((post) => (
+            
             <div 
               key={post.id} 
               className="group relative overflow-hidden rounded-xl border border-gray-100 bg-white/80 backdrop-blur-sm transition-all hover:shadow-lg hover:shadow-gray-200/50"
@@ -74,7 +79,7 @@ export default async function SpiritualQuestionsPage() {
                     </span>
                     <LikeButton
                       postId={post.slug}
-                      postType="spiritual_question"
+                      postType={post.type}
                       initialLikesCount={post.likes_count || 0}
                       initialIsLiked={post.user_likes?.includes(user?.id)}
                       isLoggedIn={!!user}

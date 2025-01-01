@@ -207,7 +207,7 @@ export default async function Home() {
                             <span>{post.type.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}</span>
                           </span>
                           <LikeButton
-                            postId={post.id}
+                            postId={post.slug}
                             postType={post.type}
                             initialLikesCount={post.likes_count || 0}
                             initialIsLiked={post.user_likes?.includes(user?.id || '')}

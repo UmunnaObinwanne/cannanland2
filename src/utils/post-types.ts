@@ -23,6 +23,15 @@ export function getTableName(postType: string): string {
   }
 }
 
+
+export function getPageConfig(urlParam: string): { table: string, type: PostType } {
+ const postType = urlParam.replace('-', '_') as PostType;
+ return {
+   table: getTableName(postType),
+   type: postType
+ };
+}
+
 export function formatPostType(postType: string): string {
   return postType.replace('-', '_');
 }
