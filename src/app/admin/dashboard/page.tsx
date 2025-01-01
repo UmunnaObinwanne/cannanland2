@@ -156,6 +156,7 @@ export default function AdminDashboard() {
     });
   };
 
+
   async function handleDelete(post: Post) {
     const supabase = createClient();
     let table: string;
@@ -191,6 +192,8 @@ export default function AdminDashboard() {
     }
     setDeletePost(null);
   }
+  
+
 
   return (
     <div className="container mx-auto max-w-6xl px-4 py-8">

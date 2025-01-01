@@ -70,7 +70,7 @@ console.log(responses)
              <div>
                <p className=" font-bold">
                  {response.is_ai ? 
-                   response.username || randomUsername : 
+                   response.username || 'One of The Forum Pastors': 
                    `@${response.profiles?.username || 'Anonymous'}`}
                </p>
                <p className="text-xs text-gray-500">

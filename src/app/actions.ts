@@ -253,7 +253,7 @@ export async function createResponse(formData: FormData) {
         content,
         user_id: user.id,
         profile_id: user.id,
-        response_id: post.id
+        [`${postType.replace('-', '_')}_id`]: post.id  // Dynamic field name
       });
 
     if (error) throw error;

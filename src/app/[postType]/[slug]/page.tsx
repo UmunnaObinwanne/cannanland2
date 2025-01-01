@@ -120,6 +120,8 @@ export default async function PostDetailPage({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser() as { data: { user: User | null } };
 
+  console.log('URL Params:', params);
+
   // Get the table configuration
   const tableConfig = TABLE_MAP[params.postType];
 
@@ -173,6 +175,8 @@ const { data: post, error } = await supabase
  `)
  .eq('slug', params.slug)
  .single();
+
+  console.log('Query result:', { post, error });
 
   if (error || !post) {
     return (
