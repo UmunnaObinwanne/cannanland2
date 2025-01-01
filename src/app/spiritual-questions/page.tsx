@@ -20,9 +20,7 @@ export default async function SpiritualQuestionsPage() {
       user_likes
     `)
     .order('created_at', { ascending: false });
-  
-    const figuredPost = {posts}
-    console.log(figuredPost)
+
 
   if (error) {
     console.error('Error fetching spiritual questions:', error);

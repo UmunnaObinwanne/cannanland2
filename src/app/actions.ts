@@ -145,13 +145,11 @@ export async function toggleLikeAction(slug: string, postType: PostType) {
    const supabase = await createClient();
    const { data: { user } } = await supabase.auth.getUser();
 
-     console.log('Incoming params:', { slug, postType });
    
    if (!user) return { error: "Must be logged in", success: false };
 
    const table = getTableName(postType);
 
-   console.log('this is the table I want to update', table)
 
    const { data: post, error: fetchError } = await supabase
      .from(table)
@@ -160,7 +158,6 @@ export async function toggleLikeAction(slug: string, postType: PostType) {
      .single();
 
    if (fetchError) return { error: "Failed to fetch post", success: false };
-     console.log('Fetch result:', { post, fetchError });
 
    const userLikes = Array.isArray(post.user_likes) ? post.user_likes : [];
    const hasLiked = userLikes.includes(user.id);

@@ -34,7 +34,6 @@ export function LikeButton({
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  console.log('information from like button', postId, postType)
 
   useEffect(() => {
     setIsLiked(initialIsLiked);
@@ -57,7 +56,6 @@ export function LikeButton({
     try {
       // postId is now a slug
       const result = await toggleLikeAction(postId, postType) as ToggleLikeResult;
-      console.log('result from like button', result)
       
       if (result.success && typeof result.hasLiked === 'boolean' && typeof result.newCount === 'number') {
         setIsLiked(result.hasLiked);
