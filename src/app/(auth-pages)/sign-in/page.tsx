@@ -46,7 +46,7 @@ export default function SignIn({ searchParams }: SignInProps) {
     }
   }, [error]);
 
-  const validateForm = (): boolean => {
+  const validateForm = useCallback((): boolean => {
     if (!formData.email) {
       setError({ field: 'email', message: 'Email is required' });
       return false;
@@ -56,9 +56,9 @@ export default function SignIn({ searchParams }: SignInProps) {
       return false;
     }
     return true;
-  };
+  }, [formData]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -92,7 +92,7 @@ export default function SignIn({ searchParams }: SignInProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [router, searchParams.redirect]);
 
   // Memoized form section
   const renderForm = useCallback(() => (
