@@ -12,6 +12,7 @@ import { Metadata } from 'next'
 import { baseMetadata } from '@/config/metadata'
 import { generatePostStructuredData } from "@/utils/structured-data";
 import { ResponsesSection } from "@/components/responses-section";
+import HorizontalSubscribeForm from "@/components/HorizontalSubscribers";
 
 // Add this configuration to disable static path generation
 export const dynamic = 'force-dynamic';
@@ -268,6 +269,9 @@ const { data: post, error } = await supabase
       })
     }}
   />
+</div>
+<div>
+  <HorizontalSubscribeForm/>
 </div>
       </div>
 

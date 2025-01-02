@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 
 import { CtaButton } from "@/components/cta-button";
+import { ContactForm } from "./contact-form";
 
 export function Hero() {
   return (

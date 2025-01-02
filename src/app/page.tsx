@@ -10,6 +10,8 @@ import { BibleStudyWidget } from "@/components/bible-study-widget";
 import { formatPostType, slugifyPostType } from '@/utils/post-types';
 import { Metadata } from 'next'
 import { baseMetadata } from '@/config/metadata'
+import  SubscribeModal  from "@/components/AutoSubscribeModal";
+
 
 export const metadata: Metadata = {
   ...baseMetadata,
@@ -107,6 +109,8 @@ export default async function Home() {
           __html: JSON.stringify([websiteStructured, organizationStructured]),
         }}
       />
+      <SubscribeModal />
+      
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-b from-blue-900 to-blue-800 py-16 sm:py-24">
         <div className="absolute inset-0">
@@ -189,6 +193,7 @@ export default async function Home() {
                           __html: DOMPurify.sanitize(post.content)
                         }}
                       />
+                     
 
                       {/* Footer Section */}
                       <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
@@ -236,7 +241,9 @@ export default async function Home() {
                   </div>
                 ))}
               </div>
+              
             </div>
+            
 
             {/* Right Widget */}
             <PrayerWidget />
