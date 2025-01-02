@@ -244,26 +244,31 @@ const { data: post, error } = await supabase
             isLoggedIn={!!user}
           />
         </div>
-        <div className="prose prose-lg max-w-none">
-          <div 
-            className="whitespace-pre-wrap text-gray-700 [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:mb-4 
-              [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-3 
-              [&>h3]:text-xl [&>h3]:font-bold [&>h3]:mb-2
-              [&>p]:mb-4 [&>ul]:list-disc [&>ul]:ml-4 [&>ol]:list-decimal [&>ol]:ml-4
-              [&>blockquote]:border-l-4 [&>blockquote]:border-gray-300 [&>blockquote]:pl-4 [&>blockquote]:italic
-              [&>pre]:bg-gray-100 [&>pre]:p-4 [&>pre]:rounded-lg [&>pre]:overflow-x-auto
-              [&>code]:bg-gray-100 [&>code]:px-1 [&>code]:rounded"
-            dangerouslySetInnerHTML={{ 
-              __html: DOMPurify.sanitize(typedPost.content, {
-                ALLOWED_TAGS: [
-                  'p', 'br', 'b', 'i', 'em', 'strong', 'a', 'ul', 'ol', 'li',
-                  'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'code'
-                ],
-                ALLOWED_ATTR: ['href', 'target', 'rel']
-              })
-            }}
-          />
-        </div>
+<div 
+  className="prose prose-lg max-w-none">
+  <div 
+    className="whitespace-pre-wrap text-gray-700 
+      [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:mb-4 
+      [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-3 
+      [&>h3]:text-xl [&>h3]:font-bold [&>h3]:mb-2
+      [&>p]:mb-4 
+      [&>ul]:list-disc [&>ul]:ml-6 [&>ul]:mb-6 [&>ul>li]:mb-2
+      [&>ol]:list-decimal [&>ol]:ml-6 [&>ol]:mb-6 [&>ol>li]:mb-3 [&>ol>li]:pl-2
+      [&>blockquote]:border-l-4 [&>blockquote]:border-gray-300 [&>blockquote]:pl-4 [&>blockquote]:italic
+      [&>pre]:bg-gray-100 [&>pre]:p-4 [&>pre]:rounded-lg [&>pre]:overflow-x-auto
+      [&>code]:bg-gray-100 [&>code]:px-1 [&>code]:rounded
+      [&>p>br]:content-[''] [&>p>br]:block [&>p>br]:my-4"
+    dangerouslySetInnerHTML={{ 
+      __html: DOMPurify.sanitize(typedPost.content, {
+        ALLOWED_TAGS: [
+          'p', 'br', 'b', 'i', 'em', 'strong', 'a', 'ul', 'ol', 'li',
+          'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'code'
+        ],
+        ALLOWED_ATTR: ['href', 'target', 'rel']
+      })
+    }}
+  />
+</div>
       </div>
 
       {/* Reply Section */}

@@ -67,18 +67,18 @@ export function ResponsesSection({ responses }: ResponsesSectionProps) {
                 </p>
               </div>
             </div>
-            <div 
-              className="prose prose-sm max-w-none
-                [&>ol]:list-decimal [&>ol]:ml-4 [&>ol]:mt-4 [&>ol]:mb-4
-                [&>ol>li]:mb-2 [&>ol>li]:pl-1
-                [&>ul]:list-disc [&>ul]:ml-4 [&>ul]:mt-4 [&>ul]:mb-4
-                [&>ul>li]:mb-2 [&>ul>li]:pl-1
-                [&>p]:mb-4 [&>p>strong]:font-semibold
-                [&>p>br]:block [&>p>br]:content-[''] [&>p>br]:my-4"
-              dangerouslySetInnerHTML={{
-                __html: sanitizeHtml(response.content)
-              }}
-            />
+      <div 
+  className="prose prose-sm max-w-none
+    [&>ol]:list-decimal [&>ol]:ml-6 [&>ol]:my-6
+    [&>ol>li]:mb-3 [&>ol>li]:pl-2
+    [&>ul]:list-disc [&>ul]:ml-6 [&>ul]:my-6
+    [&>ul>li]:mb-3 [&>ul>li]:pl-2
+    [&>p]:mb-4 [&>p>strong]:font-semibold
+    [&>p>br]:content-[''] [&>p>br]:block [&>p>br]:my-4"
+  dangerouslySetInnerHTML={{
+    __html: sanitizeHtml(response.content)
+  }}
+/>
           </div>
         ))}
       </div>
