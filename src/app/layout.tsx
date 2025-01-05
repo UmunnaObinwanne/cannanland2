@@ -39,11 +39,12 @@ export default function RootLayout({
       >
         <div className="relative">
           <Header />
+         
           <main className="min-h-screen backdrop-blur-[2px]">
+             <ToasterProvider />
             {children}
           </main>
           <Footer />
-          <ToasterProvider />
         </div>
       </body>
     </html>

@@ -121,7 +121,7 @@ export default function SignIn({ searchParams }: SignInProps) {
   </div>
 )}
 
-{searchParams?.message === 'check-email' && (
+{searchParams?.message === 'check your email' && (
   <div className="rounded-md bg-blue-50 p-4">
     <p className="text-sm font-medium text-blue-800">
       Please check your email to verify your account.

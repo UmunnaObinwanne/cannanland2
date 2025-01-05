@@ -95,7 +95,11 @@ export default function Signup({
       return;
     }
 
-    toast.success('Check your email to confirm your account');
+    toast.success('Check your email to confirm your account', {
+  position: 'top-center',
+  duration: 5000,
+  className: 'bg-green-50',
+});
     router.push('/sign-in?message=Please check your email to confirm your account');
   } catch (error) {
     toast.error('An error occurred while signing up');
@@ -117,11 +121,8 @@ export default function Signup({
             alt="Spiritual Inspiration"
             className="size-full object-cover"
           />
-          {/* Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
-          {/* Additional contrast layer for text */}
           <div className="absolute inset-0 flex flex-col items-center justify-center backdrop-brightness-75">
-            {/* Text Container with its own background */}
             <div className="rounded-xl bg-black/30 p-6 backdrop-blur-sm">
               <h2 className="mb-4 text-3xl font-light leading-tight text-white drop-shadow-lg">
                 Find Peace and Growth <br /> In CannanLand
@@ -149,18 +150,38 @@ export default function Signup({
               </p>
             </div>
 
-            {/* Conditional FormMessage */}
-          {/* Conditional FormMessage */}
-{searchParams?.error ? (
-  <p className="text-center p-2 text-red-600 bg-red-50 rounded">{searchParams.error}</p>
-) : searchParams?.message ? (
-  <div className="text-center space-y-2">
-    <p className="p-2 text-emerald-600 bg-emerald-50 rounded">{searchParams.message}</p>
-    <p className="text-sm text-gray-600">
-      Please check your email for a verification link to complete your registration.
-    </p>
-  </div>
-) : null}
+            {/* Email Verification Message */}
+            {searchParams?.message && (
+              <div className="rounded-lg bg-blue-50 p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-blue-800">
+                      Check Your Email
+                    </h3>
+                    <div className="mt-2 text-sm text-blue-700">
+                      <p>
+                        Please check your email for a verification link to complete your registration. 
+                        Remember to check your spam folder if you don't see it in your inbox.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Error Message */}
+            {searchParams?.error && (
+              <div className="rounded-md bg-red-50 p-4">
+                <p className="text-sm text-red-800">
+                  {searchParams.error}
+                </p>
+              </div>
+            )}
 
             {/* Form */}
             <form className="space-y-6" onSubmit={handleSubmit}>
@@ -213,10 +234,7 @@ export default function Signup({
               {/* Sign-In Link */}
               <p className="text-center text-xs text-gray-500">
                 Already have an account?{" "}
-                <Link
-                  href="/sign-in"
-                  className="text-blue-500 hover:text-blue-600"
-                >
+                <Link href="/sign-in" className="text-blue-500 hover:text-blue-600">
                   Sign in
                 </Link>
               </p>
