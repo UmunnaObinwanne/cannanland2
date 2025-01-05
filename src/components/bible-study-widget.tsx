@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export function BibleStudyWidget() {
   return (
-    <div className="hidden lg:block sticky top-24 h-[calc(100vh-6rem)] w-[200px] self-start">
+    <div className="lg:sticky lg:top-24 h-[calc(100vh-6rem)] w-full lg:w-[200px] self-start relative">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 600" className="w-full h-full">
         <defs>
           <linearGradient id="bibleGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -59,14 +59,14 @@ export function BibleStudyWidget() {
           Insights
         </text>
 
-        <Link href="/share-spiritual-question">
-          <rect x="30" y="420" width="140" height="45" rx="22.5" 
-                fill="white" opacity="0.9" className="cursor-pointer hover:opacity-100"/>
-          <text x="100" y="448" fontFamily="Arial, sans-serif" fontSize="18" 
-                textAnchor="middle" fill="#4c1d95" fontWeight="bold">
-            START NOW
-          </text>
-        </Link>
+        <rect x="30" y="420" width="140" height="45" rx="22.5" 
+              fill="white" opacity="0.9" className="cursor-pointer"/>
+              
+        <text x="100" y="448" fontFamily="Arial, sans-serif" fontSize="18" 
+              textAnchor="middle" fill="#4c1d95" fontWeight="bold"
+              className="cursor-pointer">
+          START NOW
+        </text>
 
         <text x="100" y="520" fontFamily="Arial, sans-serif" fontSize="18" 
               textAnchor="middle" fill="white" opacity="0.8">
@@ -81,6 +81,15 @@ export function BibleStudyWidget() {
           Community
         </text>
       </svg>
+      
+      {/* Overlay the Link component to cover the entire widget */}
+      <Link 
+        href="/share-spiritual-question"
+        className="absolute inset-0 cursor-pointer"
+        aria-label="Start sharing your spiritual questions now"
+      >
+        <span className="sr-only">Start Now</span>
+      </Link>
     </div>
   );
-} 
+}

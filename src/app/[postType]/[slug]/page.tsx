@@ -274,7 +274,8 @@ const { data: post, error } = await supabase
   <HorizontalSubscribeForm/>
 </div>
       </div>
-
+ {/* Responses Section */}
+      <ResponsesSection responses={typedPost.responses} />
       {/* Reply Section */}
       {user ? (
         <ReplyForm postId={typedPost.slug} postType={params.postType} />
@@ -289,9 +290,6 @@ const { data: post, error } = await supabase
           </p>
         </div>
       )}
-
-      {/* Responses Section */}
-      <ResponsesSection responses={typedPost.responses} />
     </div>
     </>
   );

@@ -5,12 +5,13 @@ import Link from "next/link";
 import { LikeButton } from "@/components/like-button";
 import DOMPurify from 'isomorphic-dompurify';
 import { FaPrayingHands, FaBible, FaHeart, FaComments } from 'react-icons/fa';
-import { PrayerWidget } from "@/components/prayer-widget";
+import { PrayerWidget, PrayerWidgetMobile } from "@/components/prayer-widget";
 import { BibleStudyWidget } from "@/components/bible-study-widget";
 import { formatPostType, slugifyPostType } from '@/utils/post-types';
 import { Metadata } from 'next'
 import { baseMetadata } from '@/config/metadata'
 import  SubscribeModal  from "@/components/AutoSubscribeModal";
+import {BibleStudyWidgetMobile} from "@/components/mobileBibleWidget";
 
 
 export const metadata: Metadata = {
@@ -139,23 +140,32 @@ export default async function Home() {
 
       {/* Content Section */}
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-        <div className="container mx-auto max-w-6xl px-2 sm:px-4 py-4 sm:py-8">
-          <div className="flex gap-8">
-            {/* Left Widget */}
-            <BibleStudyWidget />
+        <div className="container mx-auto max-w-7xl px-4 py-8">
+          {/* Mobile Top Widgets */}
+<div className="lg:hidden space-y-4 mb-8">
+  <div className="rounded-xl shadow-sm overflow-hidden">
+    <BibleStudyWidgetMobile />
+  </div>
+</div>
 
-            {/* Main content */}
-            <div className="flex-1">
+          {/* Main Layout */}
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Left Sidebar */}
+            <div className="hidden lg:block w-[200px] flex-shrink-0">
+              <div className="">
+                <BibleStudyWidget />
+              </div>
+            </div>
+
+            {/* Main Content */}
+            <div className="flex-1 max-w-4xl">
               <div className="space-y-8">
                 {allPosts?.map((post) => (
                   <div 
                     key={post.id} 
                     className="group relative overflow-hidden rounded-xl border border-gray-100 bg-white/80 backdrop-blur-sm transition-all hover:shadow-lg hover:shadow-gray-200/50"
                   >
-                    {/* Subtle gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-
-                    {/* Header Section with Accent Color */}
+                    {/* Header Section */}
                     <div className={`relative border-l-4 px-6 py-4 
                       ${post.type === 'bible_study' 
                         ? 'border-purple-500 bg-purple-50/70' 
@@ -171,18 +181,17 @@ export default async function Home() {
                         <h2 className="text-xl font-bold text-gray-900 transition-colors group-hover:text-blue-600">
                           {post.title}
                         </h2>
-                         </Link>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <span className="flex items-center gap-1">
-                            <span>Posted by</span>
-                            <span className="font-medium">
-                              {post.is_anonymous ? 'Anonymous' : `@${post.profiles.username}`}
-                            </span>
+                      </Link>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <span className="flex items-center gap-1">
+                          <span>Posted by</span>
+                          <span className="font-medium">
+                            {post.is_anonymous ? 'Anonymous' : `@${post.profiles.username}`}
                           </span>
-                          <span>•</span>
-                          <span>{format(new Date(post.created_at), 'MMM d')}</span>
-                        </div>
-                     
+                        </span>
+                        <span>•</span>
+                        <span>{format(new Date(post.created_at), 'MMM d')}</span>
+                      </div>
                     </div>
 
                     {/* Content Section */}
@@ -193,7 +202,6 @@ export default async function Home() {
                           __html: DOMPurify.sanitize(post.content)
                         }}
                       />
-                     
 
                       {/* Footer Section */}
                       <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
@@ -241,12 +249,21 @@ export default async function Home() {
                   </div>
                 ))}
               </div>
-              
             </div>
-            
 
-            {/* Right Widget */}
-            <PrayerWidget />
+            {/* Right Sidebar */}
+            <div className="hidden lg:block w-[200px] flex-shrink-0">
+             <div className="hidden lg:block lg:w-[200px] flex-shrink-0">
+              <PrayerWidget />
+            </div>
+            </div>
+          </div>
+
+          {/* Mobile Bottom Widget */}
+          <div className="lg:hidden space-y-4 mt-8">
+            <div className="rounded-xl shadow-sm overflow-hidden">
+    <PrayerWidgetMobile />
+  </div>
           </div>
         </div>
       </div>
