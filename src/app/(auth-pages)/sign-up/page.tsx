@@ -70,7 +70,9 @@ export default function Signup({
     }
   };
   */
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
   setIsLoading(true);
 
@@ -84,7 +86,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/sign-in?message=Email verified successfully`,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
@@ -101,7 +103,6 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     setIsLoading(false);
   }
 };
-
 
   return (
     <div className="flex items-center justify-center bg-gray-50 mt-20 py-10">

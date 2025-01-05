@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { createClient } from "@/lib/supabase/client";
 import { LoadingModal } from '@/components/loading-modal';
@@ -36,6 +37,19 @@ export default function SignIn({ searchParams }: SignInProps) {
     password: ''
   });
   const [error, setError] = useState<FormError | null>(null);
+
+    const searchParamsHook = useSearchParams();
+
+
+  useEffect(() => {
+    // Check for verified parameter
+    const verified = searchParamsHook.get('verified');
+    if (verified === 'true') {
+      toast.success('Email verified successfully! Please sign in.', {
+        duration: 5000,
+      });
+    }
+  }, [searchParamsHook]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -98,6 +112,24 @@ export default function SignIn({ searchParams }: SignInProps) {
   const renderForm = useCallback(() => (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
+   
+{searchParamsHook.get('verified') === 'true' && (
+  <div className="rounded-md bg-green-50 p-4">
+    <p className="text-sm font-medium text-green-800">
+      Email verified successfully! Please sign in.
+    </p>
+  </div>
+)}
+
+{searchParams?.message === 'check-email' && (
+  <div className="rounded-md bg-blue-50 p-4">
+    <p className="text-sm font-medium text-blue-800">
+      Please check your email to verify your account.
+    </p>
+  </div>
+)}
+
+
         {/* Email Input */}
         <div>
           <label htmlFor="email" className="mb-1 block text-xs font-medium text-gray-600">
