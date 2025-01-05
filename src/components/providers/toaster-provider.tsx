@@ -17,7 +17,7 @@ export function ToasterProvider() {
           borderRadius: '0.5rem',
           padding: '1rem',
         },
-        duration: 5000,
+        duration: 7000,
       }}
     />
   );
