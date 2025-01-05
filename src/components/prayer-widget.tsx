@@ -88,7 +88,7 @@ export function PrayerWidgetMobile() {
 
 export function PrayerWidget() {
   return (
-    <div className="hidden lg:block sticky top-24 h-[calc(100vh-8rem)] w-[200px] self-start mb-4 relative">
+    <div className="hidden lg:block lg:sticky top-24 h-[calc(100vh-8rem)] w-[200px] self-start mb-4 relative">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 600" className="w-full h-full">
         <defs>
           <linearGradient id="prayerGradient" x1="0%" y1="0%" x2="0%" y2="100%">
