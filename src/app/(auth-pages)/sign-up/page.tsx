@@ -166,7 +166,7 @@ export default function Signup({
                     <div className="mt-2 text-sm text-blue-700">
                       <p>
                         Please check your email for a verification link to complete your registration. 
-                        Remember to check your spam folder if you don't see it in your inbox.
+                        Remember to check your spam folder if you don&apos;t see it in your inbox.
                       </p>
                     </div>
                   </div>
