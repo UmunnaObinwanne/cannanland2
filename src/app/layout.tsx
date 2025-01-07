@@ -5,6 +5,7 @@ import { ToasterProvider } from "@/components/providers/toaster-provider";
 import { baseMetadata } from "@/config/metadata";
 import { Oxygen } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { base_url } from '@/lib/utils'
 
 const fontHeading = Oxygen({
   subsets: ["latin"],
@@ -27,7 +28,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <link rel="canonical" href={process.env.NEXT_PUBLIC_APP_URL} />
+        <link rel="canonical" href={base_url} />
         <meta name="google-site-verification" content="BpG6TiWALZCQvUimoLjdpU3RhdEc5dJtvvVap1iV6Bs" />
         <meta name="theme-color" content="#ffffff" />
       </head>

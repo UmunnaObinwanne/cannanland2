@@ -1,9 +1,10 @@
 import { Metadata } from 'next'
+import { base_url } from '@/lib/utils'
 
 const siteConfig = {
   name: 'Cannanland',
   description: 'A Christian community platform for sharing prayer requests, Bible studies, testimonies, and spiritual questions.',
-  url: process.env.NEXT_PUBLIC_APP_URL || 'https://cannanland.com',
+  url: base_url,
   ogImage: '/og-image.jpg',
 }
 
@@ -65,6 +66,12 @@ export const baseMetadata: Metadata = {
   icons: {
     icon: '/favicon.ico'
   },
+  verification: {
+    google: 'BpG6TiWALZCQvUimoLjdpU3RhdEc5dJtvvVap1iV6Bs',
+  },
+  alternates: {
+    canonical: siteConfig.url,
+  },
 }
 
-export default siteConfig 
+export default siteConfig
