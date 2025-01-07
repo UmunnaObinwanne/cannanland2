@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { formatISO } from "date-fns"
+import { base_url } from "@/lib/utils"
 
 export async function GET() {
   const supabase = await createClient()
@@ -21,34 +22,34 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
       <url>
-        <loc>${process.env.NEXT_PUBLIC_APP_URL}</loc>
+        <loc>${base_url}</loc>
         <lastmod>${formatDate(new Date().toISOString())}</lastmod>
         <priority>1.0</priority>
       </url>
       ${bibleStudies.data?.map(post => `
         <url>
-          <loc>${process.env.NEXT_PUBLIC_APP_URL}/bible-study/${post.slug}</loc>
+          <loc>${base_url}/bible-study/${post.slug}</loc>
           <lastmod>${formatDate(post.updated_at || post.created_at)}</lastmod>
           <priority>0.8</priority>
         </url>
       `).join('')}
       ${prayerRequests.data?.map(post => `
         <url>
-          <loc>${process.env.NEXT_PUBLIC_APP_URL}/prayer-request/${post.slug}</loc>
+          <loc>${base_url}/prayer-request/${post.slug}</loc>
           <lastmod>${formatDate(post.updated_at || post.created_at)}</lastmod>
           <priority>0.8</priority>
         </url>
       `).join('')}
       ${testimonies.data?.map(post => `
         <url>
-          <loc>${process.env.NEXT_PUBLIC_APP_URL}/testimony/${post.slug}</loc>
+          <loc>${base_url}/testimony/${post.slug}</loc>
           <lastmod>${formatDate(post.updated_at || post.created_at)}</lastmod>
           <priority>0.8</priority>
         </url>
       `).join('')}
       ${questions.data?.map(post => `
         <url>
-          <loc>${process.env.NEXT_PUBLIC_APP_URL}/spiritual-question/${post.slug}</loc>
+          <loc>${base_url}/spiritual-question/${post.slug}</loc>
           <lastmod>${formatDate(post.updated_at || post.created_at)}</lastmod>
           <priority>0.8</priority>
         </url>

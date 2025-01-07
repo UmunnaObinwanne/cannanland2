@@ -12,3 +12,5 @@ export function sanitizeHtml(html: string): string {
     ALLOWED_ATTR: ['href', 'target', 'rel']
   });
 }
+
+export const base_url = "https://cannanland.com"
